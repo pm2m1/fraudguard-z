@@ -1,0 +1,11 @@
+{
+  "selected_model": "B",
+  "review_threshold": 0.011417806148529053,
+  "review_budget_fraction": 0.01,
+  "review_count": 5266,
+  "frauds_in_review": 208,
+  "policy_rows": 526517,
+  "block_enabled": false,
+  "calibration_method": "sigmoid_on_decision_function",
+  "final_test_evaluated": false
+}
