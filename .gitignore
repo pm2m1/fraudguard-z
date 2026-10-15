@@ -32,3 +32,6 @@ reports/*.npz
 # Model experiment artifacts
 reports/*.npz
 .pytest_cache/
+
+# Local database
+data/runtime/
