@@ -1,0 +1,54 @@
+{
+  "schema_a": [
+    "log_amount",
+    "txn_type_CASH_IN",
+    "txn_type_CASH_OUT",
+    "txn_type_DEBIT",
+    "txn_type_PAYMENT",
+    "txn_type_TRANSFER",
+    "log_sender_pre_balance"
+  ],
+  "schema_b": [
+    "log_amount",
+    "txn_type_CASH_IN",
+    "txn_type_CASH_OUT",
+    "txn_type_DEBIT",
+    "txn_type_PAYMENT",
+    "txn_type_TRANSFER",
+    "log_sender_pre_balance",
+    "log_recipient_in_count_6h"
+  ],
+  "dev_max_step": 372,
+  "final_holdout_start_step": 373,
+  "split_end_steps": [
+    238,
+    306,
+    333
+  ],
+  "split_end_rows": [
+    3177938,
+    4263279,
+    4759371
+  ],
+  "development_row_count": 5285888,
+  "partitions": {
+    "train": {
+      "rows": 3177938,
+      "frauds": 2695
+    },
+    "validation": {
+      "rows": 1085341,
+      "frauds": 760
+    },
+    "calibration": {
+      "rows": 496092,
+      "frauds": 286
+    },
+    "policy": {
+      "rows": 526517,
+      "frauds": 412
+    }
+  },
+  "model": "StandardScaler + balanced LogisticRegression",
+  "note": "Validation scores are uncalibrated. Calibration/policy rows were not used for fitting."
+}

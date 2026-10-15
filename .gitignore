@@ -28,3 +28,7 @@ __pycache__/
 reports/*.npz
 .pytest_cache/
 *.pkl
+
+# Model experiment artifacts
+reports/*.npz
+.pytest_cache/
