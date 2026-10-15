@@ -1,0 +1,30 @@
+# PaySim data
+data/raw/
+data/processed/
+
+# Python environment
+.venv/
+__pycache__/
+*.pyc
+
+# Model artifacts
+*.joblib
+*.pkl
+
+# Runtime databases
+*.db
+*.sqlite3
+
+# macOS
+.DS_Store
+
+# Secrets and credentials
+.env
+.env.local
+*.pem
+*.key
+
+# Experiment artifacts
+reports/*.npz
+.pytest_cache/
+*.pkl
