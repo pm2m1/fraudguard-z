@@ -112,3 +112,42 @@ def test_same_step_uses_input_order(engine):
 
     assert result["n3"] == 1
     assert result["decision"] == "REVIEW"
+
+
+
+
+def test_state_update_failure_requires_rebuild(engine, monkeypatch):
+    original = transaction("E1", 1, 0)
+
+    def fail_observation(recipient, step):
+        raise RuntimeError("Simulated state update failure")
+
+    monkeypatch.setattr(
+        engine.history, "observe", fail_observation
+    )
+
+    with pytest.raises(RuntimeError, match="Decision committed"):
+        engine.score(original)
+
+    # The transaction was saved before the state update failed.
+    assert engine.status()["committed_events"] == 1
+    assert engine.status()["healthy"] is False
+
+    # The engine must not continue using stale history.
+    with pytest.raises(RuntimeError, match="State is unavailable"):
+        engine.score(transaction("E2", 2, 1))
+
+    # Reconstruct history from the committed SQLite records.
+    engine.rebuild()
+
+    assert engine.status()["healthy"] is True
+
+    # The previously committed event is returned without rescoring.
+    duplicate = engine.score(original)
+    assert duplicate["duplicate"] is True
+
+    # New transactions can now use the recovered history.
+    result = engine.score(transaction("E2", 2, 1))
+
+    assert result["n3"] == 1
+    assert engine.status()["committed_events"] == 2
