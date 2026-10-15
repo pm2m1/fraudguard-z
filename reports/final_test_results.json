@@ -1,0 +1,90 @@
+{
+  "test_start_step": 373,
+  "test_rows": 1076732,
+  "model_comparison": {
+    "ALL": {
+      "A": {
+        "rows": 1076732,
+        "frauds": 4060,
+        "pr_auc": 0.14047959083602637,
+        "roc_auc": 0.976632178331376,
+        "brier": 0.0036482291761785746,
+        "precision_top_1pct": 0.15676077265973254,
+        "recall_top_1pct": 0.41576354679802957,
+        "false_positives_top_1pct": 9080,
+        "fpr_top_1pct": 0.008464842934280004
+      },
+      "B": {
+        "rows": 1076732,
+        "frauds": 4060,
+        "pr_auc": 0.14738910377268014,
+        "roc_auc": 0.9781368662288459,
+        "brier": 0.003644251497462392,
+        "precision_top_1pct": 0.16669762258543833,
+        "recall_top_1pct": 0.4421182266009852,
+        "false_positives_top_1pct": 8973,
+        "fpr_top_1pct": 0.008365092031860625
+      }
+    },
+    "TRANSFER": {
+      "A": {
+        "rows": 93803,
+        "frauds": 2030,
+        "pr_auc": 0.279416629504081,
+        "roc_auc": 0.9663744163353581,
+        "brier": 0.020374270156025887,
+        "precision_top_1pct": 0.2854100106496273,
+        "recall_top_1pct": 0.13201970443349753,
+        "false_positives_top_1pct": 671,
+        "fpr_top_1pct": 0.00731151863837948
+      },
+      "B": {
+        "rows": 93803,
+        "frauds": 2030,
+        "pr_auc": 0.30286220422046445,
+        "roc_auc": 0.9685421901190231,
+        "brier": 0.02037074975669384,
+        "precision_top_1pct": 0.33120340788072417,
+        "recall_top_1pct": 0.15320197044334977,
+        "false_positives_top_1pct": 628,
+        "fpr_top_1pct": 0.006842971244265743
+      }
+    },
+    "CASH_OUT": {
+      "A": {
+        "rows": 368386,
+        "frauds": 2030,
+        "pr_auc": 0.03522633845714902,
+        "roc_auc": 0.9201490412808517,
+        "brier": 0.005475229118019342,
+        "precision_top_1pct": 0.0,
+        "recall_top_1pct": 0.0,
+        "false_positives_top_1pct": 3684,
+        "fpr_top_1pct": 0.010055792726200745
+      },
+      "B": {
+        "rows": 368386,
+        "frauds": 2030,
+        "pr_auc": 0.03836626963362081,
+        "roc_auc": 0.9243149016217072,
+        "brier": 0.0054644993506371975,
+        "precision_top_1pct": 0.026601520086862108,
+        "recall_top_1pct": 0.04827586206896552,
+        "false_positives_top_1pct": 3586,
+        "fpr_top_1pct": 0.009788293354005394
+      }
+    }
+  },
+  "frozen_policy": {
+    "threshold": 0.011417806148529053,
+    "review_count": 14323,
+    "review_rate": 0.013302288777523097,
+    "frauds_detected": 2032,
+    "frauds_missed": 2028,
+    "false_positives": 12291,
+    "precision": 0.14186972003071982,
+    "recall": 0.5004926108374385,
+    "automatic_blocking": false
+  },
+  "policy_sha256": "3c73278fec1d11891e00e9cc7dc88fc7304beae6a3d9f79d100de764d00b826b"
+}
