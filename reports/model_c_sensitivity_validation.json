@@ -1,0 +1,53 @@
+{
+  "status": "EXPERIMENTAL VALIDATION SENSITIVITY ONLY",
+  "partition": "Validation steps 239-306; train history reconstructed",
+  "baseline_model": "Uncalibrated experimental Model C",
+  "baseline_pr_auc_reproduced": 0.9916821988985419,
+  "validation_rows": 1085341,
+  "original_review_budget_count": 10854,
+  "caveats": [
+    "This is not an independent test or a claim of real-world performance.",
+    "Perturbations alter current event financial data with past-only history fixed; future account balances are not resimulated.",
+    "Original fraud labels cannot be assumed correct for altered transactions. Accordingly no counterfactual precision/recall is computed.",
+    "All top-1% queues are retrospective rankings, not streaming policies.",
+    "Original holdout steps 373+ are not read. No model or policy artifacts are modified."
+  ],
+  "experiments": {
+    "amount_decreased_10pct": {
+      "amount_factor": 0.9,
+      "balance_factor": 1.0,
+      "mean_absolute_score_change": 0.004094028097381179,
+      "p95_absolute_score_change": 0.01803008397263851,
+      "top_1pct_overlap_count": 4366,
+      "top_1pct_overlap_fraction": 0.40224801916344205,
+      "original_exact_balance_rule_matches": 741,
+      "original_rule_matches_in_top_1pct": 741,
+      "original_rule_matches_remaining_in_top_1pct": 19,
+      "fraction_original_rule_reviews_retained": 0.02564102564102564
+    },
+    "sender_balance_increased_10pct": {
+      "amount_factor": 1.0,
+      "balance_factor": 1.1,
+      "mean_absolute_score_change": 0.0011028292475326964,
+      "p95_absolute_score_change": 0.0,
+      "top_1pct_overlap_count": 9768,
+      "top_1pct_overlap_fraction": 0.8999447208402432,
+      "original_exact_balance_rule_matches": 741,
+      "original_rule_matches_in_top_1pct": 741,
+      "original_rule_matches_remaining_in_top_1pct": 25,
+      "fraction_original_rule_reviews_retained": 0.033738191632928474
+    },
+    "amount_and_balance_decreased_10pct": {
+      "amount_factor": 0.9,
+      "balance_factor": 0.9,
+      "mean_absolute_score_change": 0.003099495028480134,
+      "p95_absolute_score_change": 0.014353026353301317,
+      "top_1pct_overlap_count": 5357,
+      "top_1pct_overlap_fraction": 0.4935507646950433,
+      "original_exact_balance_rule_matches": 741,
+      "original_rule_matches_in_top_1pct": 741,
+      "original_rule_matches_remaining_in_top_1pct": 741,
+      "fraction_original_rule_reviews_retained": 1.0
+    }
+  }
+}
