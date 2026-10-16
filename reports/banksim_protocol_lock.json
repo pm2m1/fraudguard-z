@@ -1,0 +1,29 @@
+{
+  "lock_status": "PRE_EVALUATION_NO_FRAUD_LABELS_READ",
+  "data_path": "data/external/banksim/bs140513_032310.csv",
+  "dataset_sha256": "e37006f76d993bfaec3a02d717b4f0bdc1ebfa5d36449e91fb7c07e225278377",
+  "protocol_path": "notes/banksim_prospective_protocol.md",
+  "protocol_sha256": "bd6f7a9f5d8bba512f8432589a7d6d93cc509a6821a5f74d393e0aa0d47caab7",
+  "intake_script_sha256": "07b0a326e033082d6875f4bda9903e1657eef71aaf3a19c5577aae0cc8e568db",
+  "evaluator_script_sha256": "73ca9512138279e269ad3371040847253f17e3c05e762e43db1b10ce8b0d3bfa",
+  "schema": [
+    "amount",
+    "category",
+    "customer",
+    "fraud",
+    "merchant",
+    "step"
+  ],
+  "metadata": {
+    "rows": 594643,
+    "unique_steps": 180,
+    "earliest_step": 0,
+    "latest_step": 179,
+    "first_tuning_step": 108,
+    "first_final_step": 144,
+    "number_of_categories_all_periods": 15,
+    "note": "No fraud label values were read or counted; demographic features unused."
+  },
+  "final_data_evaluated": false,
+  "note": "This locks source-data, protocol, intake and evaluator bytes. Review and commit the exact evaluator before one-time testing."
+}
