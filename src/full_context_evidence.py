@@ -27,14 +27,19 @@ def _as_vector(values):
     return result
 
 
-def _nonnegative_int(raw, feature):
-    # Lifetime cardinalities are stored as log1p counts; a rounded estimate
-    # recovers a human-readable *integer* and tolerates float32 conversion.
+def _nonnegative_int(raw, feature, *, log_encoded):
+    """Decode count according to the frozen 21-column feature contract.
+
+    Lifetime counts are log1p encoded; window counts are already integers.
+    Explicit encoding is required to prevent accidentally exponentiating
+    raw six-hour or 24-hour counts.
+    """
     if raw < 0:
         raise ValueError(f"Negative {feature}")
-    estimated = expm1(raw)
+    estimated = expm1(raw) if log_encoded else raw
     value = round(estimated)
-    if value < 0 or abs(estimated - value) > max(0.1, abs(value) * 2e-5):
+    tolerance = max(0.1, abs(value) * 2e-5) if log_encoded else 1e-5
+    if value < 0 or abs(estimated - value) > tolerance:
         raise ValueError(f"Malformed historical counter {feature}")
     return int(value)
 
@@ -62,13 +67,13 @@ def build_evidence(features):
         raise ValueError("Malformed type indicators")
     if sum(round(v) for v in kind_flags) != 1:
         raise ValueError("Transaction type is not one-hot")
-    sender_count = _nonnegative_int(vector[9], "log_sender_prior_out_count")
-    pair_count = _nonnegative_int(vector[13], "log_pair_prior_count")
-    prior_originators = _nonnegative_int(vector[17], "log_recipient_distinct_source_count")
-    sender6 = _nonnegative_int(vector[10], "sender_out_count_6h")
-    incoming6 = _nonnegative_int(vector[18], "recipient_in_count_6h")
-    cashout6 = _nonnegative_int(vector[19], "recipient_cashout_count_6h")
-    prior_pair_24 = _nonnegative_int(vector[14], "pair_count_24h")
+    sender_count = _nonnegative_int(vector[9], "log_sender_prior_out_count", log_encoded=True)
+    pair_count = _nonnegative_int(vector[13], "log_pair_prior_count", log_encoded=True)
+    prior_originators = _nonnegative_int(vector[17], "log_recipient_distinct_source_count", log_encoded=True)
+    sender6 = _nonnegative_int(vector[10], "sender_out_count_6h", log_encoded=False)
+    incoming6 = _nonnegative_int(vector[18], "recipient_in_count_6h", log_encoded=False)
+    cashout6 = _nonnegative_int(vector[19], "recipient_cashout_count_6h", log_encoded=False)
+    prior_pair_24 = _nonnegative_int(vector[14], "pair_count_24h", log_encoded=False)
     flag = vector[15]
     if flag not in (0.0, 1.0) or bool(flag) != (pair_count == 0):
         raise ValueError("Inconsistent first-time recipient flag")
