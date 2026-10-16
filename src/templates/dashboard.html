@@ -193,6 +193,14 @@
       float: right;
     }
 
+    .explanation-list { display: grid; gap: 7px; margin-top: 12px; }
+    .driver { display: flex; justify-content: space-between; gap: 12px;
+      border-bottom: 1px solid #253244; padding: 7px 0; font-size: 12px; }
+    .driver .positive { color: #ffcb74; }
+    .driver .negative { color: #79e5b1; }
+    .driver span:first-child { overflow-wrap: anywhere; }
+    .explanation-note { font-size: 12px; color: #95a3b7; line-height: 1.5; }
+
     .notice {
       min-height: 20px;
       margin-top: 14px;
@@ -370,6 +378,25 @@
       </article>
     </section>
 
+    <article class="panel" id="explanationPanel">
+      <div class="panel-header">
+        <div>
+          <h2>Why this decision?</h2>
+          <p class="muted small" style="margin: 7px 0 0;">
+            Model B feature contributions to the decision score
+          </p>
+        </div>
+      </div>
+      <p class="muted small" id="explanationStatus">Score a transaction to see its explanation.</p>
+      <div id="explanationDetails" hidden>
+        <div class="explanation-list" id="explanationDrivers"></div>
+        <p class="explanation-note" style="margin: 16px 0 0;">
+          Contributions explain the model's raw score, not the probability itself.
+          They do not establish that fraud occurred.
+        </p>
+      </div>
+    </article>
+
     <article class="panel">
       <div class="panel-header">
         <div>
@@ -446,6 +473,44 @@
       byId("lastStep").textContent = row.step;
     }
 
+    let explanationRequest = 0;
+
+    async function showExplanation(row) {
+      const requestNumber = ++explanationRequest;
+      const status = byId("explanationStatus");
+      const details = byId("explanationDetails");
+      const drivers = byId("explanationDrivers");
+      details.hidden = true;
+      drivers.replaceChildren();
+      if (!row) {
+        status.textContent = "Score a transaction to see its explanation.";
+        return;
+      }
+      status.textContent = "Loading explanation...";
+      try {
+        const explanation = await getJson(
+          `/transactions/${encodeURIComponent(row.event_id)}/explanation`
+        );
+        if (requestNumber !== explanationRequest) return;
+        for (const item of explanation.drivers) {
+          const line = document.createElement("div");
+          line.className = "driver";
+          const label = document.createElement("span");
+          label.textContent = item.feature;
+          const contribution = document.createElement("span");
+          contribution.className = item.margin_contribution >= 0 ? "positive" : "negative";
+          contribution.textContent = `${item.margin_contribution >= 0 ? "+" : ""}${item.margin_contribution.toFixed(4)}`;
+          line.append(label, contribution);
+          drivers.append(line);
+        }
+        details.hidden = false;
+        status.textContent = `Event ${explanation.event_id} · raw margin ${explanation.raw_model_margin.toFixed(4)}`;
+      } catch (error) {
+        if (requestNumber !== explanationRequest) return;
+        status.textContent = `Explanation unavailable: ${error.message}`;
+      }
+    }
+
     function showTransactions(transactions) {
       const tbody = byId("transactionRows");
       tbody.replaceChildren();
@@ -504,11 +569,12 @@
       byId("reviewed").textContent = count(stats.reviewed);
       byId("avgRisk").textContent = pct(stats.average_risk);
 
-      const nextStep = health.last_position[0] + 1;
+      const nextStep = Math.max(1, health.last_position[0] + 1);
       byId("nextStep").textContent = `Next step: ${nextStep}`;
 
       showTransactions(recent.transactions);
       showLatest(recent.transactions[0]);
+      await showExplanation(recent.transactions[0]);
     }
 
     byId("refreshBtn").addEventListener("click", async () => {
@@ -541,8 +607,8 @@
 
         const transaction = {
           event_id: `ui-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
-          source_row_index: lastPosition[1] + 1,
-          step: lastPosition[0] + 1,
+          source_row_index: Math.max(0, lastPosition[1] + 1),
+          step: Math.max(1, lastPosition[0] + 1),
           type: form.get("type"),
           amount: Number(form.get("amount")),
           nameOrig: form.get("nameOrig").trim(),
