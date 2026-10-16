@@ -1,0 +1,339 @@
+{
+  "status": "EXPLORATORY_DEVELOPMENT_ONLY",
+  "dataset": "PaySim synthetic dataset",
+  "model": "HistGradientBoostingClassifier balance-free seven predictors",
+  "predictor_columns": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    7
+  ],
+  "original_train_steps": [
+    1,
+    238
+  ],
+  "original_validation_steps": [
+    239,
+    306
+  ],
+  "tuning_validation_prefix_rows": 542670,
+  "evaluation_validation_suffix_rows": 542671,
+  "split_method": "chronological original validation row midpoint (may bisect a step)",
+  "budget_fraction": 0.01,
+  "budget_block_size": 10000,
+  "policy": "fixed unlabeled score cutoffs from earlier validation rows; causal block-prefix hard caps; unused quota not reallocated",
+  "warning": "Original validation and final holdout were previously inspected. Model family and feature sets have already been developed using validation feedback. Comparison is exploratory, NOT independent evidence or a deployed policy. Rates can differ below the same maximum 1% review budget; compare detections AND workloads. Scores are uncalibrated, not fraud probabilities.",
+  "results": {
+    "global_all": {
+      "score_ties_in_tuning_at_cutoffs": {
+        "GLOBAL": {
+          "above": 5072,
+          "equal": 547,
+          "at_or_above": 5619
+        }
+      },
+      "tuning_thresholds": {
+        "GLOBAL": 0.9371398035041687
+      },
+      "metrics": {
+        "transactions": 542671,
+        "frauds": 308,
+        "reviews": 5237,
+        "review_rate": 0.009650414339443235,
+        "true_positives": 62,
+        "false_positives": 5175,
+        "precision": 0.011838839029978995,
+        "recall": 0.2012987012987013,
+        "pr_auc_ranking_only": 0.04498328185717074,
+        "by_type": {
+          "TRANSFER": {
+            "transactions": 45363,
+            "frauds": 154,
+            "reviews": 5054,
+            "true_positives": 34,
+            "false_positives": 5020,
+            "precision": 0.006727344677483181,
+            "recall": 0.22077922077922077
+          },
+          "CASH_OUT": {
+            "transactions": 193967,
+            "frauds": 154,
+            "reviews": 183,
+            "true_positives": 28,
+            "false_positives": 155,
+            "precision": 0.15300546448087432,
+            "recall": 0.18181818181818182
+          }
+        }
+      }
+    },
+    "global_eligible_only": {
+      "score_ties_in_tuning_at_cutoffs": {
+        "GLOBAL": {
+          "above": 5072,
+          "equal": 547,
+          "at_or_above": 5619
+        }
+      },
+      "tuning_thresholds": {
+        "GLOBAL": 0.9371398035041687
+      },
+      "metrics": {
+        "transactions": 542671,
+        "frauds": 308,
+        "reviews": 5237,
+        "review_rate": 0.009650414339443235,
+        "true_positives": 62,
+        "false_positives": 5175,
+        "precision": 0.011838839029978995,
+        "recall": 0.2012987012987013,
+        "pr_auc_ranking_only": 0.04498328185717074,
+        "by_type": {
+          "TRANSFER": {
+            "transactions": 45363,
+            "frauds": 154,
+            "reviews": 5054,
+            "true_positives": 34,
+            "false_positives": 5020,
+            "precision": 0.006727344677483181,
+            "recall": 0.22077922077922077
+          },
+          "CASH_OUT": {
+            "transactions": 193967,
+            "frauds": 154,
+            "reviews": 183,
+            "true_positives": 28,
+            "false_positives": 155,
+            "precision": 0.15300546448087432,
+            "recall": 0.18181818181818182
+          }
+        }
+      }
+    },
+    "type_aware_25T_75C": {
+      "score_ties_in_tuning_at_cutoffs": {
+        "TRANSFER": {
+          "above": 1262,
+          "equal": 370,
+          "at_or_above": 1632
+        },
+        "CASH_OUT": {
+          "above": 2439,
+          "equal": 2167,
+          "at_or_above": 4606
+        }
+      },
+      "tuning_thresholds": {
+        "TRANSFER": 0.9563551193167381,
+        "CASH_OUT": 0.7507857513690418
+      },
+      "metrics": {
+        "transactions": 542671,
+        "frauds": 308,
+        "reviews": 4782,
+        "review_rate": 0.008811968946193918,
+        "true_positives": 59,
+        "false_positives": 4723,
+        "precision": 0.0123379339188624,
+        "recall": 0.19155844155844157,
+        "pr_auc_ranking_only": 0.04498328185717074,
+        "by_type": {
+          "TRANSFER": {
+            "transactions": 45363,
+            "frauds": 154,
+            "reviews": 1316,
+            "true_positives": 12,
+            "false_positives": 1304,
+            "precision": 0.00911854103343465,
+            "recall": 0.07792207792207792
+          },
+          "CASH_OUT": {
+            "transactions": 193967,
+            "frauds": 154,
+            "reviews": 3466,
+            "true_positives": 47,
+            "false_positives": 3419,
+            "precision": 0.013560300057703404,
+            "recall": 0.3051948051948052
+          }
+        }
+      }
+    },
+    "type_aware_50T_50C": {
+      "score_ties_in_tuning_at_cutoffs": {
+        "TRANSFER": {
+          "above": 2390,
+          "equal": 371,
+          "at_or_above": 2761
+        },
+        "CASH_OUT": {
+          "above": 2439,
+          "equal": 2167,
+          "at_or_above": 4606
+        }
+      },
+      "tuning_thresholds": {
+        "TRANSFER": 0.9491587721909135,
+        "CASH_OUT": 0.7507857513690418
+      },
+      "metrics": {
+        "transactions": 542671,
+        "frauds": 308,
+        "reviews": 5148,
+        "review_rate": 0.009486410735049413,
+        "true_positives": 56,
+        "false_positives": 5092,
+        "precision": 0.010878010878010878,
+        "recall": 0.18181818181818182,
+        "pr_auc_ranking_only": 0.04498328185717074,
+        "by_type": {
+          "TRANSFER": {
+            "transactions": 45363,
+            "frauds": 154,
+            "reviews": 2619,
+            "true_positives": 19,
+            "false_positives": 2600,
+            "precision": 0.007254677357770141,
+            "recall": 0.12337662337662338
+          },
+          "CASH_OUT": {
+            "transactions": 193967,
+            "frauds": 154,
+            "reviews": 2529,
+            "true_positives": 37,
+            "false_positives": 2492,
+            "precision": 0.014630288651640965,
+            "recall": 0.24025974025974026
+          }
+        }
+      }
+    },
+    "type_aware_75T_25C": {
+      "score_ties_in_tuning_at_cutoffs": {
+        "TRANSFER": {
+          "above": 3801,
+          "equal": 1040,
+          "at_or_above": 4841
+        },
+        "CASH_OUT": {
+          "above": 1227,
+          "equal": 472,
+          "at_or_above": 1699
+        }
+      },
+      "tuning_thresholds": {
+        "TRANSFER": 0.9374731695325677,
+        "CASH_OUT": 0.8293073376706914
+      },
+      "metrics": {
+        "transactions": 542671,
+        "frauds": 308,
+        "reviews": 5141,
+        "review_rate": 0.00947351157515327,
+        "true_positives": 66,
+        "false_positives": 5075,
+        "precision": 0.012837969266679634,
+        "recall": 0.21428571428571427,
+        "pr_auc_ranking_only": 0.04498328185717074,
+        "by_type": {
+          "TRANSFER": {
+            "transactions": 45363,
+            "frauds": 154,
+            "reviews": 3968,
+            "true_positives": 30,
+            "false_positives": 3938,
+            "precision": 0.007560483870967742,
+            "recall": 0.19480519480519481
+          },
+          "CASH_OUT": {
+            "transactions": 193967,
+            "frauds": 154,
+            "reviews": 1173,
+            "true_positives": 36,
+            "false_positives": 1137,
+            "precision": 0.030690537084398978,
+            "recall": 0.23376623376623376
+          }
+        }
+      }
+    }
+  },
+  "posthoc_stability_75T25C_vs_global": {
+    "reference": "global_all",
+    "candidate": "type_aware_75T_25C",
+    "blocks": 55,
+    "block_size": 10000,
+    "observed_extra_fraud_detections": 4,
+    "observed_review_count_difference": -96,
+    "additional_tp_95pct_descriptive_interval": [
+      -10.0,
+      18.0
+    ],
+    "additional_reviews_95pct_descriptive_interval": [
+      -154.0,
+      -39.0
+    ],
+    "bootstrap_fraction_positive_detection_difference": 0.694,
+    "per_block_extra_tp": [
+      0,
+      0,
+      1,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      -1,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      -2,
+      -2,
+      0,
+      0,
+      0,
+      -2,
+      0,
+      0,
+      0,
+      -1,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      -2,
+      0,
+      0
+    ],
+    "warning": "Paired block resampling on an already examined validation suffix. This is a descriptive stability check, NOT confirmatory inference or proof of future effectiveness. Candidate policy selected after examining these outcomes."
+  }
+}
