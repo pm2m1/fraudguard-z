@@ -188,6 +188,74 @@ def describe(labels, kinds, scores, selected):
     return output
 
 
+def threshold_tie_audit(tuning_scores, threshold):
+    """Quantify exact score ties at a fixed, unlabeled cutoff."""
+    scores = np.asarray(tuning_scores, dtype=float)
+    if scores.ndim != 1 or not np.isfinite(scores).all():
+        raise ValueError("Invalid tuning score vector")
+    if threshold == math.inf:
+        return {"above": 0, "equal": 0, "at_or_above": 0}
+    if threshold == -math.inf:
+        return {"above": len(scores), "equal": 0, "at_or_above": len(scores)}
+    above = int(np.count_nonzero(scores > threshold))
+    equal = int(np.count_nonzero(scores == threshold))
+    return {"above": above, "equal": equal, "at_or_above": above + equal}
+
+
+def paired_block_stability(labels, reference, candidate, *,
+                           block_size=BLOCK_SIZE, draws=3000, seed=42):
+    """Descriptive paired moving-period variation under fixed policies.
+
+    Non-overlapping chronological blocks are resampled jointly. These are
+    exploratory intervals, not inference on an untouched test. The policy
+    candidate was chosen after examining the same evaluation outcomes.
+    """
+    y = np.asarray(labels)
+    ref = np.asarray(reference, dtype=bool)
+    alt = np.asarray(candidate, dtype=bool)
+    if (y.ndim != 1 or not len(y) or y.shape != ref.shape
+            or y.shape != alt.shape or not np.isin(y, (0, 1)).all()
+            or block_size < 1 or draws < 100):
+        raise ValueError("Invalid paired stability arguments")
+    tp_blocks, review_blocks = [], []
+    for begin in range(0, len(y), block_size):
+        end = min(begin + block_size, len(y))
+        tp_blocks.append(int(np.sum(y[begin:end] * alt[begin:end])) -
+                         int(np.sum(y[begin:end] * ref[begin:end])))
+        review_blocks.append(int(alt[begin:end].sum()) -
+                             int(ref[begin:end].sum()))
+    tp_blocks = np.array(tp_blocks, dtype=int)
+    review_blocks = np.array(review_blocks, dtype=int)
+    rng = np.random.default_rng(seed)
+    samples = rng.integers(0, len(tp_blocks), size=(draws, len(tp_blocks)))
+    tp_samples = tp_blocks[samples].sum(axis=1)
+    review_samples = review_blocks[samples].sum(axis=1)
+    return {
+        "reference": "global_all",
+        "candidate": "type_aware_75T_25C",
+        "blocks": len(tp_blocks),
+        "block_size": block_size,
+        "observed_extra_fraud_detections": int(tp_blocks.sum()),
+        "observed_review_count_difference": int(review_blocks.sum()),
+        "additional_tp_95pct_descriptive_interval": [
+            float(x) for x in np.quantile(tp_samples, [.025, .975])
+        ],
+        "additional_reviews_95pct_descriptive_interval": [
+            float(x) for x in np.quantile(review_samples, [.025, .975])
+        ],
+        "bootstrap_fraction_positive_detection_difference": float(
+            np.mean(tp_samples > 0)
+        ),
+        "per_block_extra_tp": tp_blocks.tolist(),
+        "warning": (
+            "Paired block resampling on an already examined validation suffix. "
+            "This is a descriptive stability check, NOT confirmatory inference "
+            "or proof of future effectiveness. Candidate policy selected "
+            "after examining these outcomes."
+        ),
+    }
+
+
 def run_experiment(manifest):
     if manifest["split_end_steps"][:2] != [238, 306]:
         raise RuntimeError("Unexpected PaySim development split")
@@ -224,6 +292,7 @@ def run_experiment(manifest):
           for share in TYPE_SHARES),
     ]
     results = {}
+    selections = {}
     for name, share, restrict in configs:
         cutoffs = policy_thresholds(
             tune_scores, tune_types, transfer_share=share,
@@ -234,7 +303,20 @@ def run_experiment(manifest):
             restrict_eligible=restrict,
         )
         metrics = describe(eval_labels, eval_types, eval_scores, chosen)
+        selections[name] = chosen
+        if share is None:
+            tune_slice = tune_scores[
+                ((tune_types == TRANSFER) | (tune_types == CASH_OUT))
+                if restrict else np.ones(len(tune_scores), dtype=bool)
+            ]
+            tie_audit = {"GLOBAL": threshold_tie_audit(tune_slice, cutoffs["GLOBAL"])}
+        else:
+            tie_audit = {
+                "TRANSFER": threshold_tie_audit(tune_scores[tune_types == TRANSFER], cutoffs["TRANSFER"]),
+                "CASH_OUT": threshold_tie_audit(tune_scores[tune_types == CASH_OUT], cutoffs["CASH_OUT"]),
+            }
         results[name] = {
+            "score_ties_in_tuning_at_cutoffs": tie_audit,
             "tuning_thresholds": {
                 kind: (None if not math.isfinite(cutoff) else cutoff)
                 for kind, cutoff in cutoffs.items()
@@ -270,6 +352,9 @@ def run_experiment(manifest):
             "Scores are uncalibrated, not fraud probabilities."
         ),
         "results": results,
+        "posthoc_stability_75T25C_vs_global": paired_block_stability(
+            eval_labels, selections["global_all"], selections["type_aware_75T_25C"],
+        ),
     }
 
 
