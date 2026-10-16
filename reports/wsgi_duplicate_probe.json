@@ -1,0 +1,22 @@
+{
+  "status": "completed",
+  "timestamp_utc": "2026-10-16T11:46:54.862435+00:00",
+  "client_architecture": "arm64",
+  "client_system": "Darwin",
+  "target": "http://127.0.0.1:5050",
+  "concurrency": 8,
+  "duplicate_requests": 200,
+  "conflicting_event_rejected": true,
+  "unauthenticated_health_rejected": true,
+  "all_duplicate_responses_consistent": true,
+  "committed_events_before": 1,
+  "committed_events_after": 1,
+  "wall_seconds": 0.183,
+  "duplicate_responses_per_second": 1091.5,
+  "http_latency_ms": {
+    "p50": 1.34,
+    "p95": 5.382,
+    "p99": 7.141
+  },
+  "limitations": "Single-worker localhost Gunicorn; repeated ALREADY-COMMITTED event only. Measures duplicate-response handling under concurrent HTTP clients, NOT sustained fresh-transaction ingestion, concurrent unique-writer semantics, online ML throughput, external-network performance, TLS, or LinuxONE."
+}
