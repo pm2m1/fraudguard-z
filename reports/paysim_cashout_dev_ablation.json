@@ -1,0 +1,70 @@
+{
+  "status": "DEVELOPMENT DIAGNOSTIC ONLY",
+  "training_steps": "1-238",
+  "validation_steps": "239-306",
+  "excluded_feature_indices": [
+    8,
+    9,
+    10
+  ],
+  "review_selection": "retrospective global top 1 percent",
+  "results": {
+    "frozen_model_b": {
+      "overall_pr_auc": 0.03296909645212017,
+      "reviews": 10854,
+      "frauds_detected": 364,
+      "TRANSFER": {
+        "frauds": 380,
+        "detected": 328,
+        "false_alerts": 5034,
+        "recall": 0.8631578947368421,
+        "pr_auc": 0.07954404140837112
+      },
+      "CASH_OUT": {
+        "frauds": 380,
+        "detected": 36,
+        "false_alerts": 5456,
+        "recall": 0.09473684210526316,
+        "pr_auc": 0.007309972903319722
+      }
+    },
+    "hgb_same_8_features": {
+      "overall_pr_auc": 0.6395894691474381,
+      "reviews": 10854,
+      "frauds_detected": 727,
+      "TRANSFER": {
+        "frauds": 380,
+        "detected": 380,
+        "false_alerts": 2378,
+        "recall": 1.0,
+        "pr_auc": 0.6874572987187576
+      },
+      "CASH_OUT": {
+        "frauds": 380,
+        "detected": 347,
+        "false_alerts": 7749,
+        "recall": 0.9131578947368421,
+        "pr_auc": 0.5587041089925641
+      }
+    },
+    "hgb_plus_history_14_features": {
+      "overall_pr_auc": 0.6280760720703836,
+      "reviews": 10854,
+      "frauds_detected": 719,
+      "TRANSFER": {
+        "frauds": 380,
+        "detected": 380,
+        "false_alerts": 2465,
+        "recall": 1.0,
+        "pr_auc": 0.6637211382104092
+      },
+      "CASH_OUT": {
+        "frauds": 380,
+        "detected": 339,
+        "false_alerts": 7670,
+        "recall": 0.8921052631578947,
+        "pr_auc": 0.5518921922738733
+      }
+    }
+  }
+}

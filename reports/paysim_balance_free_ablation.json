@@ -1,0 +1,72 @@
+{
+  "status": "DEVELOPMENT DIAGNOSTIC ONLY",
+  "train_steps": [
+    1,
+    238
+  ],
+  "validation_steps": [
+    239,
+    306
+  ],
+  "sender_balance_excluded_from_predictors": true,
+  "selection": "retrospective global top 1 percent",
+  "results": {
+    "amount_and_type_only": {
+      "pr_auc": 0.04004186655220188,
+      "reviews": 10854,
+      "frauds_detected": 226,
+      "TRANSFER": {
+        "frauds_detected": 85,
+        "frauds_total": 380,
+        "recall": 0.2236842105263158,
+        "false_alerts": 10452,
+        "pr_auc": 0.006120955302039027
+      },
+      "CASH_OUT": {
+        "frauds_detected": 141,
+        "frauds_total": 380,
+        "recall": 0.37105263157894736,
+        "false_alerts": 176,
+        "pr_auc": 0.3660049410110264
+      }
+    },
+    "plus_recipient_history": {
+      "pr_auc": 0.05304613884902023,
+      "reviews": 10854,
+      "frauds_detected": 267,
+      "TRANSFER": {
+        "frauds_detected": 125,
+        "frauds_total": 380,
+        "recall": 0.32894736842105265,
+        "false_alerts": 10408,
+        "pr_auc": 0.009212814070169745
+      },
+      "CASH_OUT": {
+        "frauds_detected": 142,
+        "frauds_total": 380,
+        "recall": 0.3736842105263158,
+        "false_alerts": 179,
+        "pr_auc": 0.3655405447613572
+      }
+    },
+    "plus_full_history": {
+      "pr_auc": 0.06693213712080179,
+      "reviews": 10854,
+      "frauds_detected": 267,
+      "TRANSFER": {
+        "frauds_detected": 126,
+        "frauds_total": 380,
+        "recall": 0.33157894736842103,
+        "false_alerts": 10444,
+        "pr_auc": 0.009218356601901234
+      },
+      "CASH_OUT": {
+        "frauds_detected": 141,
+        "frauds_total": 380,
+        "recall": 0.37105263157894736,
+        "false_alerts": 143,
+        "pr_auc": 0.3652011177535425
+      }
+    }
+  }
+}
