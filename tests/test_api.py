@@ -30,7 +30,10 @@ def transaction(event_id, step, index):
 
 
 @pytest.fixture
-def api_client(tmp_path):
+def api_client(tmp_path, monkeypatch):
+    # Legacy API behavior tests run without auth, even if the developer has
+    # FGZ_AUTH_PASSWORD set in their shell for the protected demo server.
+    monkeypatch.delenv("FGZ_AUTH_PASSWORD", raising=False)
     engine = DecisionEngine(
         tmp_path / "api.sqlite3",
         FakeModel(),
