@@ -127,6 +127,29 @@ def verify_lock():
     return lock
 
 
+def inspect_original_incident():
+    """Validate preserved original marker against the original committed lock."""
+    if not ORIGINAL_START.is_file() or not ORIGINAL_DIR.is_dir():
+        raise RuntimeError("Original failure marker/directory missing; preserve incident evidence")
+    if not ORIGINAL_LOCK.is_file():
+        raise RuntimeError("Original frozen lock missing")
+    if ORIGINAL_LOCK.read_bytes() != git_head_bytes(ORIGINAL_LOCK):
+        raise RuntimeError("Original frozen lock differs from committed HEAD")
+    try:
+        marker = json.loads(ORIGINAL_START.read_text())
+    except (OSError, ValueError) as exc:
+        raise RuntimeError("Original failure marker malformed") from exc
+    if (
+        not isinstance(marker.get("started_at_utc"), str)
+        or not marker["started_at_utc"]
+        or marker.get("lock_sha256") != file_hash(ORIGINAL_LOCK)
+    ):
+        raise RuntimeError("Original failure marker does not match original lock")
+    if any(ORIGINAL_DIR.iterdir()) or ORIGINAL_OUTPUT.exists():
+        raise RuntimeError("Original incident reports differ from documented first-run failure")
+    return file_hash(ORIGINAL_START)
+
+
 def no_prior_run():
     inspect_original_incident()
     if START.exists() or OUTPUT.exists() or RUN_DIR.exists():
