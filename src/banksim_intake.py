@@ -5,9 +5,9 @@ Usage:
     python -m src.banksim_intake --lock
 
 Inspect verifies CSV structure and chronological step composition only.
-Lock stores SHA-256 of source dataset and research protocol; it never
+Lock stores SHA-256 of source dataset, evaluator and protocol; it never
 evaluates models, scores, labels, or fraud outcomes. Commit the resulting
-reports/banksim_protocol_lock.json BEFORE implementing/running final eval.
+reports/banksim_protocol_lock.json BEFORE running final evaluation.
 """
 import argparse
 import csv
@@ -89,13 +89,13 @@ def build_lock(path=DATA):
         "protocol_path": str(PROTOCOL),
         "protocol_sha256": sha256(PROTOCOL),
         "intake_script_sha256": sha256(Path(__file__).resolve()),
+        "evaluator_script_sha256": sha256(Path(__file__).with_name("banksim_evaluate.py")),
         "schema": sorted(REQUIRED),
         "metadata": metadata,
         "final_data_evaluated": False,
         "note": (
-            "This only locks source-data bytes and protocol text. "
-            "Evaluators must be separately frozen and reviewed before "
-            "running a one-time final evaluation."
+            "This locks source-data, protocol, intake and evaluator bytes. "
+            "Review and commit the exact evaluator before one-time testing."
         )
     }
 
@@ -116,7 +116,7 @@ def main():
     LOCK.parent.mkdir(parents=True, exist_ok=True)
     LOCK.write_text(json.dumps(document, indent=2) + "\n")
     print(f"Locked source and protocol metadata in {LOCK}")
-    print("Commit/push the lock before building or running the one-time evaluator.")
+    print("Commit/push the lock before running the one-time evaluator.")
     print("No fraud labels have been read or summarized by this tool.")
 
 
