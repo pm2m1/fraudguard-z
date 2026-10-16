@@ -94,6 +94,7 @@ def materialize(csv_path, manifest_path, destination):
         first_step = None
         last_step = None
         seen = 0
+        dev_digest = hashlib.sha256()
         for cursor, values, label in iter_feature_records(
             iter_labelled_development_csv(csv_path)
         ):
@@ -114,6 +115,11 @@ def materialize(csv_path, manifest_path, destination):
                 raise ValueError("Chronological partition row boundary mismatch")
             features[seen] = values
             labels[seen] = label
+            # Digest development-only feature rows and labels. Do not hash or
+            # scan the entire source CSV: that would read held-out bytes.
+            dev_digest.update(np.asarray(cursor, dtype="<i8").tobytes())
+            dev_digest.update(np.asarray(values, dtype="<f4").tobytes())
+            dev_digest.update(bytes([label]))
             counts[partition] += 1
             frauds[partition] += label
             seen += 1
@@ -127,7 +133,7 @@ def materialize(csv_path, manifest_path, destination):
         del features, labels
         info = {
             "status": "DEVELOPMENT_ONLY_FEATURE_MATERIALIZATION",
-            "source_csv_sha256": file_sha256(csv_path),
+            "development_features_sha256": dev_digest.hexdigest(),
             "split_manifest_sha256": file_sha256(manifest_path),
             "schema": list(FULL_FEATURE_NAMES),
             "schema_sha256": hashlib.sha256(
