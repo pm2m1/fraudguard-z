@@ -173,6 +173,7 @@ class FullContextJournal:
             state = FullContextHistory()
             position = (-1, -1)
             count = 0
+            reviewed = 0
             rows = self.db.execute("""
                 SELECT * FROM decisions ORDER BY step, source_row_index
             """)
@@ -198,9 +199,14 @@ class FullContextJournal:
                 state.observe(event)
                 position = cursor
                 count += 1
+                if row["decision"] == "REVIEW":
+                    reviewed += 1
+                elif row["decision"] != "ALLOW":
+                    raise RuntimeError("Committed invalid decision")
             self.history = state
             self.last_position = position
             self.committed_events = count
+            self.reviewed_events = reviewed
             self.healthy = True
 
     def _insert(self, transaction, fingerprint, features, risk, decision, evidence):
@@ -300,6 +306,8 @@ class FullContextJournal:
                 self.history.observe(transaction)
                 self.last_position = position
                 self.committed_events += 1
+                if decision == "REVIEW":
+                    self.reviewed_events += 1
             except Exception as exc:
                 self.healthy = False
                 raise RuntimeError(
@@ -312,6 +320,7 @@ class FullContextJournal:
             return {
                 "healthy": self.healthy,
                 "committed_events": self.committed_events,
+                "reviewed_events": self.reviewed_events,
                 "last_position": self.last_position,
                 "feature_schema_sha256": FEATURE_SCHEMA_SHA256,
                 "model_version": self.model_version,
