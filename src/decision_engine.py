@@ -7,6 +7,8 @@ from pathlib import Path
 
 import numpy as np
 
+from .privacy import AccountPseudonymizer, verify_database_mode
+
 from .features import (
     MODEL_B_FEATURE_NAMES,
     RecipientHistory,
@@ -63,13 +65,14 @@ def payload_hash(transaction):
 
 
 class DecisionEngine:
-    def __init__(self, db_path, model, calibrator, threshold):
+    def __init__(self, db_path, model, calibrator, threshold, privacy_key=None):
         if len(MODEL_B_FEATURE_NAMES) != 8:
             raise ValueError("Unexpected feature schema")
 
         if not 0 < threshold < 1:
             raise ValueError("Invalid review threshold")
 
+        self.pseudonymizer = (AccountPseudonymizer(privacy_key) if privacy_key is not None else None)
         self.model = model
         self.calibrator = calibrator
         self.threshold = float(threshold)
@@ -112,6 +115,7 @@ class DecisionEngine:
             )
         """)
 
+        verify_database_mode(self.db, self.pseudonymizer)
         self.rebuild()
 
     def rebuild(self):
@@ -143,6 +147,9 @@ class DecisionEngine:
 
     def score(self, raw):
         transaction = normalize_transaction(raw)
+        if self.pseudonymizer is not None:
+            transaction["nameOrig"] = self.pseudonymizer.encode(transaction["nameOrig"])
+            transaction["nameDest"] = self.pseudonymizer.encode(transaction["nameDest"])
         fingerprint = payload_hash(transaction)
         event_id = transaction["event_id"]
 
