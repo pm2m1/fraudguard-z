@@ -1,0 +1,22 @@
+{
+  "completed_at_utc": "2026-10-16T07:51:52.674118+00:00",
+  "started_at_utc": "2026-10-16T07:51:49.428453+00:00",
+  "records": 5000,
+  "duration_seconds": 3.245,
+  "effective_transactions_per_second": 1540.707,
+  "http_latency_ms": {
+    "mean": 0.645,
+    "p50": 0.617,
+    "p95": 0.787,
+    "p99": 1.103
+  },
+  "decisions": {
+    "ALLOW": 4964,
+    "REVIEW": 36
+  },
+  "transactions_with_n3_positive": 1994,
+  "delay_ms_per_transaction": 0.0,
+  "client_system": "Darwin",
+  "client_architecture": "arm64",
+  "notes": "Client-observed HTTP latency includes API, model and SQLite; measured serially."
+}

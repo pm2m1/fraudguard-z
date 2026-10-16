@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 from pathlib import Path
 
 import joblib
@@ -75,8 +76,13 @@ def main():
     if calibrator.n_features_in_ != 1:
         raise RuntimeError("Incorrect calibrator input size")
 
+    db_override = os.environ.get("FGZ_DB_PATH")
+    db_path = Path(db_override).expanduser() if db_override else (
+        ROOT / "data/runtime/fraudguard.sqlite3"
+    )
+
     engine = DecisionEngine(
-        ROOT / "data/runtime/fraudguard.sqlite3",
+        db_path,
         model,
         calibrator,
         float(policy["review_threshold"]),
@@ -86,6 +92,7 @@ def main():
 
     try:
         print("FraudGuard Z listening on http://127.0.0.1:5050")
+        print(f"SQLite database: {db_path}")
 
         app.run(
             host="127.0.0.1",
