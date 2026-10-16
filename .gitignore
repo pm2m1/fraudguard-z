@@ -35,3 +35,9 @@ reports/*.npz
 
 # Local database
 data/runtime/
+
+# Third-party evaluation datasets (never commit)
+data/external/
+
+# Partial-sample diagnostics (not final evaluation)
+reports/handbook_smoke.json
