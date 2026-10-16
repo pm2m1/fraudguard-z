@@ -35,3 +35,7 @@ reports/*.npz
 
 # Local database
 data/runtime/
+
+# Third-party benchmark datasets and smoke-only outputs
+data/external/
+reports/handbook_smoke.json
