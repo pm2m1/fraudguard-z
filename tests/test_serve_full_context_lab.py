@@ -58,10 +58,18 @@ def test_restart_duplicate_and_durable_review_quota(tmp_path, monkeypatch):
     app2, journal2 = lab.open_local_lab(path, KEY, PASSWORD)
     try:
         with app2.test_client() as client:
-            assert client.post("/transactions/score", headers=headers,
-                               json=transaction(101)).json["decision"] == "ALLOW"
-            assert client.post("/transactions/score", headers=headers,
-                               json=transaction(200)).json["decision"] == "REVIEW"
+            # Review quota is based on COMMITTED transactions, not event IDs
+            # or source_row_index. Replay the actual 100 subsequent events.
+            for i in range(101, 201):
+                response = client.post(
+                    "/transactions/score", headers=headers,
+                    json=transaction(i),
+                )
+                assert response.status_code == 201
+                assert response.json["decision"] == (
+                    "REVIEW" if i == 200 else "ALLOW"
+                )
+            assert journal2.status()["committed_events"] == 200
             assert client.get("/stats", headers=headers).json["reviewed"] == 2
             assert client.get("/stats", headers=headers).json["blocked"] == 0
     finally:
@@ -91,3 +99,30 @@ def test_main_rejects_unacknowledged_and_production(monkeypatch):
     monkeypatch.setenv("FGZ_DEPLOYMENT_MODE", "production")
     with pytest.raises(RuntimeError, match="prohibited"):
         lab.main()
+
+
+def test_sparse_event_ids_cannot_inflate_committed_review_budget(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        lab, "load_frozen_lab_artifacts",
+        lambda *a, **k: (lambda x: .9, .5, "policy-v2-test", "model-test")
+    )
+    app, journal = lab.open_local_lab(
+        tmp_path / "sparse-ordinal.sqlite3", KEY, PASSWORD
+    )
+    token = base64.b64encode(f"fraudguard:{PASSWORD}".encode()).decode()
+    headers = {"Authorization": "Basic " + token}
+    try:
+        with app.test_client() as client:
+            for ordinal in (10_000, 20_000):
+                response = client.post(
+                    "/transactions/score", headers=headers,
+                    json=transaction(ordinal),
+                )
+                assert response.status_code == 201
+                assert response.json["decision"] == "ALLOW"
+            assert journal.status()["committed_events"] == 2
+            stats = client.get("/stats", headers=headers).json
+            assert stats["reviewed"] == 0
+            assert stats["blocked"] == 0
+    finally:
+        journal.close()
