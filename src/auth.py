@@ -15,6 +15,8 @@ def configure_auth(app, password=None):
     if password and len(password) < 16:
         raise RuntimeError("FGZ_AUTH_PASSWORD must contain at least 16 characters")
 
+    app.extensions["fraudguard_auth_configured"] = bool(password)
+
     @app.before_request
     def require_password():
         if not password:
