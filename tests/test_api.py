@@ -150,3 +150,13 @@ def test_unhealthy_engine_returns_503(api_client):
 
     assert response.status_code == 503
     assert response.json["healthy"] is False
+
+
+def test_dashboard(api_client):
+    client, _ = api_client
+
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert b"FraudGuard Z" in response.data
+    assert b"Score transaction" in response.data

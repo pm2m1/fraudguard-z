@@ -1,13 +1,16 @@
 
 import sqlite3
 
-from flask import Flask, jsonify, request
-
+from flask import Flask, jsonify, render_template, request
 
 def create_app(engine):
     app = Flask(__name__)
     app.json.sort_keys = False
     app.extensions["decision_engine"] = engine
+
+    @app.get("/")
+    def dashboard():
+        return render_template("dashboard.html")
 
     @app.get("/health")
     def health():

@@ -1,0 +1,578 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FraudGuard Z</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0b111b;
+      color: #e9eef7;
+    }
+
+    * { box-sizing: border-box; }
+
+    body { margin: 0; }
+
+    .shell {
+      max-width: 1240px;
+      margin: auto;
+      padding: 30px 24px 60px;
+    }
+
+    header, .panel-header, .actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    header { margin-bottom: 36px; }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: #183e46;
+      color: #6ce1cb;
+      font-weight: 800;
+    }
+
+    h1, h2, p { margin-top: 0; }
+
+    h1 { font-size: 24px; margin-bottom: 4px; }
+    h2 { font-size: 17px; margin-bottom: 0; }
+
+    .muted { color: #95a3b7; }
+    .small { font-size: 13px; }
+
+    .pill {
+      display: inline-block;
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #283344;
+      color: #cbd5e1;
+    }
+
+    .healthy, .allow {
+      background: #123c32;
+      color: #79e5b1;
+    }
+
+    .review {
+      background: #493516;
+      color: #ffcb74;
+    }
+
+    .unhealthy {
+      background: #48232a;
+      color: #ff9da7;
+    }
+
+    .heading { margin-bottom: 26px; }
+    .heading h2 { font-size: 29px; margin-bottom: 8px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat, .panel {
+      background: #141d2a;
+      border: 1px solid #273346;
+      border-radius: 16px;
+    }
+
+    .stat { padding: 20px; }
+
+    .stat strong {
+      display: block;
+      font-size: 27px;
+      margin-top: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .columns {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .panel { padding: 23px; }
+    .panel-header { margin-bottom: 22px; }
+
+    .fields {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+      color: #acb9cc;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      background: #0c1420;
+      border: 1px solid #334358;
+      border-radius: 9px;
+      color: #f0f5fc;
+      font: inherit;
+    }
+
+    input:focus, select:focus {
+      outline: 2px solid #55c9ba;
+      outline-offset: 1px;
+    }
+
+    button {
+      padding: 12px 16px;
+      border: 0;
+      border-radius: 9px;
+      background: #65dcc8;
+      color: #08231f;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    button:disabled { opacity: 0.55; cursor: wait; }
+
+    button.secondary {
+      background: #253447;
+      color: #e9eef7;
+    }
+
+    .actions { margin-top: 20px; }
+
+    .result-box {
+      min-height: 228px;
+      padding: 20px;
+      border-radius: 12px;
+      background: #0d1521;
+      border: 1px solid #29394c;
+    }
+
+    .risk {
+      font-size: 42px;
+      font-weight: 750;
+      margin: 20px 0 6px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .result-meta {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+      color: #acb9cc;
+      font-size: 13px;
+    }
+
+    .result-meta strong {
+      color: #f0f5fc;
+      float: right;
+    }
+
+    .notice {
+      min-height: 20px;
+      margin-top: 14px;
+      font-size: 13px;
+      color: #ffb6a7;
+    }
+
+    .table-scroll { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      color: #91a0b5;
+      font-weight: 600;
+      padding: 14px 10px;
+      border-bottom: 1px solid #344052;
+    }
+
+    td {
+      padding: 15px 10px;
+      border-bottom: 1px solid #253244;
+    }
+
+    td, th { white-space: nowrap; }
+    td:first-child { font-family: ui-monospace, monospace; }
+
+    footer {
+      margin-top: 24px;
+      color: #8493a9;
+      font-size: 12px;
+    }
+
+    @media (max-width: 850px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .columns { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 520px) {
+      .shell { padding: 18px 14px; }
+      header { align-items: flex-start; }
+      .fields { grid-template-columns: 1fr; }
+      .stats { gap: 9px; }
+      .stat { padding: 14px; }
+      .stat strong { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand">
+        <div class="mark">FG</div>
+        <div>
+          <h1>FraudGuard Z</h1>
+          <div class="muted small">Transaction monitoring</div>
+        </div>
+      </div>
+      <span id="serverStatus" class="pill">Connecting</span>
+    </header>
+
+    <section class="heading">
+      <h2>Transaction overview</h2>
+      <p class="muted">
+        Model B · Recipient history · SQLite audit log
+      </p>
+    </section>
+
+    <section class="stats">
+      <div class="stat">
+        <span class="muted small">Transactions</span>
+        <strong id="total">0</strong>
+      </div>
+      <div class="stat">
+        <span class="muted small">Allowed</span>
+        <strong id="allowed">0</strong>
+      </div>
+      <div class="stat">
+        <span class="muted small">Flagged for review</span>
+        <strong id="reviewed">0</strong>
+      </div>
+      <div class="stat">
+        <span class="muted small">Average estimated risk</span>
+        <strong id="avgRisk">0.000%</strong>
+      </div>
+    </section>
+
+    <section class="columns">
+      <article class="panel">
+        <div class="panel-header">
+          <h2>Score a transaction</h2>
+          <span class="pill">Live model</span>
+        </div>
+
+        <form id="txnForm">
+          <div class="fields">
+            <label>
+              Transaction type
+              <select name="type" required>
+                <option>TRANSFER</option>
+                <option>CASH_OUT</option>
+                <option>PAYMENT</option>
+                <option>CASH_IN</option>
+                <option>DEBIT</option>
+              </select>
+            </label>
+
+            <label>
+              Amount
+              <input name="amount" type="number"
+                     min="0" step="0.01" value="181" required>
+            </label>
+
+            <label>
+              Sender account
+              <input name="nameOrig" value="C_DEMO_3" required>
+            </label>
+
+            <label>
+              Recipient account
+              <input name="nameDest" value="C500" required>
+            </label>
+
+            <label>
+              Sender balance before transaction
+              <input name="oldbalanceOrg" type="number"
+                     min="0" step="0.01" value="181" required>
+            </label>
+          </div>
+
+          <div class="actions">
+            <span id="nextStep" class="muted small">
+              Checking transaction order...
+            </span>
+            <button id="submitBtn" type="submit">
+              Score transaction
+            </button>
+          </div>
+          <div id="formNotice" class="notice" role="status"></div>
+        </form>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <h2>Latest decision</h2>
+          <span class="pill">Model B</span>
+        </div>
+
+        <div class="result-box">
+          <p id="emptyResult" class="muted">
+            No transactions recorded yet.
+          </p>
+
+          <div id="resultDetails" hidden>
+            <span id="lastDecision" class="pill"></span>
+            <div id="lastRisk" class="risk">0%</div>
+            <div class="muted small">Estimated fraud risk</div>
+
+            <div class="result-meta">
+              <div>Event <strong id="lastEvent"></strong></div>
+              <div>Prior recipient events <strong id="lastN3"></strong></div>
+              <div>Transaction step <strong id="lastStep"></strong></div>
+            </div>
+          </div>
+        </div>
+
+        <p class="muted small" style="margin-top: 16px;">
+          Decisions are ALLOW or REVIEW.
+          Automatic blocking is disabled.
+        </p>
+      </article>
+    </section>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Recent transactions</h2>
+          <p class="muted small" style="margin: 7px 0 0;">
+            Latest 20 committed decisions
+          </p>
+        </div>
+        <button id="refreshBtn" class="secondary" type="button">
+          Refresh
+        </button>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>N3</th>
+              <th>Risk</th>
+              <th>Decision</th>
+            </tr>
+          </thead>
+          <tbody id="transactionRows"></tbody>
+        </table>
+      </div>
+    </article>
+
+    <footer>
+      PaySim synthetic dataset. Model scores are estimates,
+      not guarantees of fraud. Local development dashboard.
+    </footer>
+  </div>
+
+  <script>
+    const byId = id => document.getElementById(id);
+    const pct = value => `${(Number(value) * 100).toFixed(3)}%`;
+    const count = value => Number(value).toLocaleString();
+
+    async function getJson(url, options = {}) {
+      const response = await fetch(url, {
+        cache: "no-store",
+        ...options
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `Request failed (${response.status})`);
+      }
+
+      return data;
+    }
+
+    function showLatest(row) {
+      if (!row) {
+        byId("emptyResult").hidden = false;
+        byId("resultDetails").hidden = true;
+        return;
+      }
+
+      byId("emptyResult").hidden = true;
+      byId("resultDetails").hidden = false;
+
+      const badge = byId("lastDecision");
+      badge.textContent = row.decision;
+      badge.className = `pill ${row.decision === "REVIEW" ? "review" : "allow"}`;
+
+      byId("lastRisk").textContent = pct(row.risk);
+      byId("lastEvent").textContent = row.event_id;
+      byId("lastN3").textContent = row.n3;
+      byId("lastStep").textContent = row.step;
+    }
+
+    function showTransactions(transactions) {
+      const tbody = byId("transactionRows");
+      tbody.replaceChildren();
+
+      if (!transactions.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 6;
+        td.textContent = "No transactions recorded.";
+        td.className = "muted";
+        tr.append(td);
+        tbody.append(tr);
+        return;
+      }
+
+      for (const row of transactions) {
+        const tr = document.createElement("tr");
+
+        const values = [
+          row.event_id,
+          row.txn_type,
+          Number(row.amount).toLocaleString(),
+          row.n3,
+          pct(row.risk),
+          row.decision
+        ];
+
+        values.forEach((value, index) => {
+          const td = document.createElement("td");
+          td.textContent = value;
+
+          if (index === 5) {
+            td.className = row.decision === "REVIEW" ? "review" : "allow";
+          }
+
+          tr.append(td);
+        });
+
+        tbody.append(tr);
+      }
+    }
+
+    async function refreshDashboard() {
+      const [health, stats, recent] = await Promise.all([
+        getJson("/health"),
+        getJson("/stats"),
+        getJson("/transactions/recent?limit=20")
+      ]);
+
+      const status = byId("serverStatus");
+      status.textContent = health.healthy ? "System healthy" : "Unavailable";
+      status.className = `pill ${health.healthy ? "healthy" : "unhealthy"}`;
+
+      byId("total").textContent = count(stats.total);
+      byId("allowed").textContent = count(stats.allowed);
+      byId("reviewed").textContent = count(stats.reviewed);
+      byId("avgRisk").textContent = pct(stats.average_risk);
+
+      const nextStep = health.last_position[0] + 1;
+      byId("nextStep").textContent = `Next step: ${nextStep}`;
+
+      showTransactions(recent.transactions);
+      showLatest(recent.transactions[0]);
+    }
+
+    byId("refreshBtn").addEventListener("click", async () => {
+      try {
+        await refreshDashboard();
+        byId("formNotice").textContent = "";
+      } catch (error) {
+        byId("formNotice").textContent = error.message;
+        byId("serverStatus").textContent = "Unavailable";
+        byId("serverStatus").className = "pill unhealthy";
+      }
+    });
+
+    byId("txnForm").addEventListener("submit", async event => {
+      event.preventDefault();
+
+      const button = byId("submitBtn");
+      button.disabled = true;
+      byId("formNotice").textContent = "";
+
+      try {
+        const health = await getJson("/health");
+
+        if (!health.healthy) {
+          throw new Error("Scoring is currently unavailable.");
+        }
+
+        const form = new FormData(byId("txnForm"));
+        const lastPosition = health.last_position;
+
+        const transaction = {
+          event_id: `ui-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+          source_row_index: lastPosition[1] + 1,
+          step: lastPosition[0] + 1,
+          type: form.get("type"),
+          amount: Number(form.get("amount")),
+          nameOrig: form.get("nameOrig").trim(),
+          nameDest: form.get("nameDest").trim(),
+          oldbalanceOrg: Number(form.get("oldbalanceOrg"))
+        };
+
+        const result = await getJson("/transactions/score", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(transaction)
+        });
+
+        await refreshDashboard();
+
+        byId("formNotice").textContent =
+          `Saved ${result.event_id}. Decision: ${result.decision}.`;
+
+      } catch (error) {
+        byId("formNotice").textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    refreshDashboard().catch(error => {
+      byId("serverStatus").textContent = "Unavailable";
+      byId("serverStatus").className = "pill unhealthy";
+      byId("formNotice").textContent = error.message;
+    });
+  </script>
+</body>
+</html>
