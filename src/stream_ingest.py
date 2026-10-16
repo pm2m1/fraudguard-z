@@ -15,6 +15,7 @@ import time
 from collections import Counter
 from pathlib import Path
 from urllib.error import HTTPError, URLError
+from http.client import HTTPConnection, HTTPException
 from urllib.parse import urlsplit
 from urllib.request import ProxyHandler, Request, build_opener
 
@@ -192,6 +193,75 @@ class LocalAPI:
         raise RuntimeError("Exhausted local API attempts")
 
 
+class PersistentLocalAPI(LocalAPI):
+    """Single-consumer HTTP/1.1 connection reuse for a keep-alive WSGI worker.
+
+    Use with one Gunicorn gthread WORKER, not Gunicorn sync (which closes every
+    response connection). No cross-thread sharing: the ordered replay consumer
+    is the only caller. Reconnect on transport error, preserving idempotent
+    retry semantics for a possibly committed response.
+    """
+
+    def __init__(self, url, password=None, attempts=3, retry_delay=.2):
+        super().__init__(url, password, attempts, retry_delay)
+        parsed = urlsplit(url)
+        self.port = parsed.port or 80
+        self.connection = None
+
+    def close(self):
+        if self.connection is not None:
+            self.connection.close()
+            self.connection = None
+
+    def request(self, path, event=None):
+        payload = json.dumps(event).encode("utf-8") if event is not None else None
+        headers = dict(self.headers)
+        if payload is not None:
+            headers["Content-Type"] = "application/json"
+        failed_attempt = False
+
+        for attempt in range(self.attempts):
+            try:
+                if self.connection is None:
+                    self.connection = HTTPConnection(
+                        "127.0.0.1", self.port, timeout=15
+                    )
+                self.connection.request(
+                    "POST" if payload is not None else "GET",
+                    path,
+                    body=payload,
+                    headers=headers,
+                )
+                response = self.connection.getresponse()
+                status = response.status
+                body = response.read()  # Consume complete body before reusing.
+                if response.will_close:
+                    self.close()
+                if status not in (200, 201):
+                    if status not in RETRYABLE_HTTP or attempt == self.attempts - 1:
+                        raise RuntimeError(f"HTTP {status} at {path}")
+                else:
+                    result = json.loads(body)
+                    if not isinstance(result, dict):
+                        raise RuntimeError("Invalid API JSON object")
+                    if (
+                        event is not None
+                        and result.get("duplicate")
+                        and not failed_attempt
+                    ):
+                        raise RuntimeError(
+                            "Unexpected duplicate without a prior transport failure"
+                        )
+                    return result
+            except (OSError, HTTPException) as exc:
+                self.close()
+                if attempt == self.attempts - 1:
+                    raise RuntimeError("Local API failed after retries") from exc
+            failed_attempt = True
+            time.sleep(self.retry_delay * (2 ** attempt))
+        raise RuntimeError("Exhausted local API attempts")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--csv", type=Path, default=DATA_PATH)
@@ -200,6 +270,8 @@ def main():
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--queue-size", type=int, default=64)
     parser.add_argument("--retries", type=int, default=3)
+    parser.add_argument("--persistent-http", action="store_true",
+                        help="Reuse HTTP/1.1 connection (requires keep-alive WSGI, e.g. Gunicorn gthread)")
     parser.add_argument("--report", type=Path, default=Path("reports/bounded_stream.json"))
     parser.add_argument("--url", default="http://127.0.0.1:5050")
     args = parser.parse_args()
@@ -209,8 +281,9 @@ def main():
         parser.error("--queue-size must be between 1 and 10000")
 
     import os
-    client = LocalAPI(args.url, os.environ.get("FGZ_AUTH_PASSWORD"),
-                      attempts=args.retries)
+    transport_class = PersistentLocalAPI if args.persistent_http else LocalAPI
+    client = transport_class(args.url, os.environ.get("FGZ_AUTH_PASSWORD"),
+                             attempts=args.retries)
     health = client.request("/health")
     latest = client.request("/transactions/recent?limit=1")["transactions"]
     already = validate_resume(health, latest, resume=args.resume)
@@ -228,6 +301,9 @@ def main():
         raise RuntimeError("Server event count mismatches requested prefix")
     report["total_committed_events"] = args.count
     report["resumed_from_row"] = already
+    report["transport"] = "persistent_http_1_1" if args.persistent_http else "urllib_connection_per_request"
+    if args.persistent_http:
+        client.close()
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(report, indent=2) + "\n")
     print(f"Processed {report['new_transactions']} new transactions")
