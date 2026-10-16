@@ -41,7 +41,7 @@ def test_n2_audit_aggregation_and_no_overwrite(tmp_path):
     assert report["validation_rows"] == 10
     groups = report["results"]["validation"]["ALL"]
     assert sum(x["rows"] for x in groups.values()) == 10
-    assert sum(x["frauds"] for x in groups.values()) == 3
+    assert sum(x["frauds"] for x in groups.values()) == parts["validation"]["frauds"]
     assert len(report["results"]["validation_quarters"]) == 4
     assert out.exists()
     with pytest.raises(FileExistsError):
