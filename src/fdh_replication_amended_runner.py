@@ -27,6 +27,10 @@ LOCK = Path("reports/fdh_amended_01_lock.json")
 START = Path("reports/fdh_amended_01_started.json")
 OUTPUT = Path("reports/fdh_amended_01_summary.json")
 RUN_DIR = Path("reports/fdh_amended_01_runs")
+ORIGINAL_LOCK = Path("reports/fdh_replication_lock.json")
+ORIGINAL_START = Path("reports/fdh_replication_started.json")
+ORIGINAL_DIR = Path("reports/fdh_replication_runs")
+ORIGINAL_OUTPUT = Path("reports/fdh_replication_summary.json")
 SOURCE_FILES = (
     "src/fdh_seeded_generator.py",
     "src/fdh_replication_evaluator.py",
@@ -79,6 +83,8 @@ def build_lock():
         "status": "AMENDED_AFTER_FAILED_FIRST_RUN",
         "original_lock_commit": "d233ce7",
         "original_failed_run": "seed_104729__default",
+        "original_lock_sha256": file_hash(ORIGINAL_LOCK),
+        "original_marker_sha256": inspect_original_incident(),
         "evidence_class": "EXPLORATORY_AMENDED_NOT_UNTOUCHED",
         "sources": {name: file_hash(name) for name in SOURCE_FILES},
         "protocol": protocol(),
@@ -122,10 +128,7 @@ def verify_lock():
 
 
 def no_prior_run():
-    original_start = Path("reports/fdh_replication_started.json")
-    original_dir = Path("reports/fdh_replication_runs")
-    if not original_start.is_file() or not original_dir.is_dir():
-        raise RuntimeError("Original failure marker/directory missing; preserve incident evidence")
+    inspect_original_incident()
     if START.exists() or OUTPUT.exists() or RUN_DIR.exists():
         raise RuntimeError("Previous replication run artifacts exist")
 
