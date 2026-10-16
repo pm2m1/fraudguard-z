@@ -2,6 +2,7 @@
 import sqlite3
 
 from .auth import configure_auth
+from .http_safety import configure_http_safety
 from .explanations import explain_record, ExplanationUnavailable
 
 from flask import Flask, jsonify, render_template, request
@@ -11,6 +12,7 @@ def create_app(engine):
     app.json.sort_keys = False
     app.extensions["decision_engine"] = engine
     configure_auth(app)
+    configure_http_safety(app)
 
     @app.get("/")
     def dashboard():
