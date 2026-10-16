@@ -280,7 +280,7 @@ def evaluate_events(events):
     only_static = static & ~hist
     paired = {
         "extra_detected_history_minus_static": int(
-            final_y[hist].sum() - final_y[static].sum()
+            int(final_y[hist].sum()) - int(final_y[static].sum())
         ),
         "history_only_detected": int(np.sum(only_hist & (final_y == 1))),
         "static_only_detected": int(np.sum(only_static & (final_y == 1))),
