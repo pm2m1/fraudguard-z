@@ -15,9 +15,10 @@ import numpy as np
 
 from .decision_engine import normalize_transaction, payload_hash
 from .full_context import FULL_FEATURE_NAMES, FullContextHistory
+from .full_context_evidence import canonical_evidence_json, build_evidence
 from .privacy import AccountPseudonymizer, verify_database_mode
 
-SCHEMA_ID = "fgz_full_context_v1"
+SCHEMA_ID = "fgz_full_context_evidence_v2"
 FEATURE_SCHEMA_SHA256 = hashlib.sha256(
     json.dumps(FULL_FEATURE_NAMES, separators=(",", ":")).encode()
 ).hexdigest()
@@ -26,7 +27,7 @@ DECISION_COLUMNS = {
     "event_id", "payload_hash", "step", "source_row_index", "originator",
     "recipient", "txn_type", "amount", "sender_balance", "features_json",
     "calibrated_risk", "decision", "feature_schema_sha256", "model_version",
-    "policy_version",
+    "policy_version", "evidence_json", "evidence_sha256",
 }
 
 
@@ -108,6 +109,8 @@ class FullContextJournal:
                     feature_schema_sha256 TEXT NOT NULL,
                     model_version TEXT NOT NULL,
                     policy_version TEXT NOT NULL,
+                    evidence_json TEXT NOT NULL,
+                    evidence_sha256 TEXT NOT NULL,
                     UNIQUE(step, source_row_index)
                 )
             """)
@@ -188,6 +191,10 @@ class FullContextJournal:
                 saved = json.loads(row["features_json"])
                 if list(reconstructed) != saved:
                     raise RuntimeError("Committed feature history mismatch")
+                evidence = canonical_evidence_json(reconstructed)
+                if (row["evidence_json"] != evidence or
+                        row["evidence_sha256"] != hashlib.sha256(evidence.encode()).hexdigest()):
+                    raise RuntimeError("Committed evidence integrity mismatch")
                 state.observe(event)
                 position = cursor
                 count += 1
@@ -196,14 +203,15 @@ class FullContextJournal:
             self.committed_events = count
             self.healthy = True
 
-    def _insert(self, transaction, fingerprint, features, risk, decision):
+    def _insert(self, transaction, fingerprint, features, risk, decision, evidence):
         self.db.execute("""
             INSERT INTO decisions (
                 event_id, payload_hash, step, source_row_index,
                 originator, recipient, txn_type, amount, sender_balance,
                 features_json, calibrated_risk, decision,
-                feature_schema_sha256, model_version, policy_version
-            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                feature_schema_sha256, model_version, policy_version,
+                evidence_json, evidence_sha256
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         """, (
             transaction["event_id"], fingerprint, transaction["step"],
             transaction["source_row_index"], transaction["nameOrig"],
@@ -211,6 +219,7 @@ class FullContextJournal:
             transaction["oldbalanceOrg"], json.dumps(list(features)),
             risk, decision, FEATURE_SCHEMA_SHA256,
             self.model_version, self.policy_version,
+            evidence, hashlib.sha256(evidence.encode()).hexdigest(),
         ))
 
     @staticmethod
@@ -221,6 +230,7 @@ class FullContextJournal:
             "decision": decision,
             "features": dict(zip(FULL_FEATURE_NAMES, features)),
             "duplicate": duplicate,
+            "evidence": build_evidence(features),
         }
 
     def process(self, raw):
@@ -276,7 +286,8 @@ class FullContextJournal:
                         "Unvalidated BLOCK or other action refused; "
                         "conservative policy not yet authorized"
                     )
-                self._insert(transaction, fingerprint, features, risk, decision)
+                evidence = canonical_evidence_json(features)
+                self._insert(transaction, fingerprint, features, risk, decision, evidence)
                 self.db.commit()
             except Exception as exc:
                 if self.db.in_transaction:
