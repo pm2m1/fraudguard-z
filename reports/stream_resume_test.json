@@ -1,0 +1,24 @@
+{
+  "status": "completed",
+  "client_architecture": "arm64",
+  "client_system": "Darwin",
+  "started_utc": "2026-10-16T10:40:32.388358+00:00",
+  "new_transactions": 5000,
+  "decisions": {
+    "ALLOW": 4950,
+    "REVIEW": 50
+  },
+  "duplicate_responses_after_retry": 0,
+  "queue_capacity": 32,
+  "single_ordered_consumer": true,
+  "duration_seconds": 3.469,
+  "throughput_tps": 1441.151,
+  "http_latency_ms": {
+    "p50": 0.649,
+    "p95": 0.836,
+    "p99": 1.454
+  },
+  "limitations": "Serial local HTTP requests, one consumer; not a concurrency or sustained-ingestion benchmark. Safe resume requires PaySim-only database and unchanged CSV. Network timeouts can be retried because the engine stores an idempotent event decision.",
+  "total_committed_events": 26372,
+  "resumed_from_row": 21372
+}
