@@ -1,6 +1,7 @@
 import json
 
 import pytest
+import numpy as np
 
 from src.full_context import FullContextHistory
 from src.full_context_evidence import build_evidence, canonical_evidence_json
@@ -69,3 +70,34 @@ def test_reject_malformed_features():
     wrong[15] = 0.0
     with pytest.raises(ValueError):
         build_evidence(wrong)
+
+
+def test_raw_window_counts_vs_log_lifetime_counts_and_float32():
+    history = FullContextHistory()
+    for prior in (
+        event(1, orig="A", dest="B"),
+        event(1, orig="C", dest="B"),
+        event(1, orig="B", dest="X", kind="CASH_OUT"),
+    ):
+        history.features(prior)
+        history.observe(prior)
+    # Exercise the same float32 representation used by the data materializer.
+    vector = np.asarray(history.features(event(2, orig="A", dest="B")),
+                        dtype=np.float32)
+    evidence = build_evidence(vector)
+    observed = {item["code"]: item["observed"] for item in evidence["items"]}
+    assert observed["RECIPIENT_PRIOR_ORIGINATORS"] == 2   # log1p-encoded
+    assert observed["SENDER_PRIOR_ACTIVITY"] == 1        # log1p-encoded
+    assert observed["PAIR_PRIOR_ACTIVITY"] == 1          # log1p-encoded
+    assert observed["SENDER_OUTGOING_6H"] == 1           # raw integer
+    assert observed["RECIPIENT_INCOMING_6H"] == 2        # raw integer
+    assert observed["RECIPIENT_AS_CASHOUT_ORIGIN_6H"] == 1
+    assert observed["PAIR_RECENT_24H"] == 1              # raw integer
+
+
+def test_reject_fractional_raw_counter():
+    history = FullContextHistory()
+    vector = list(history.features(event(1)))
+    vector[18] = 1.718281828  # Illegal raw count; must not be expm1 decoded.
+    with pytest.raises(ValueError, match="Malformed historical counter"):
+        build_evidence(vector)
