@@ -1,0 +1,137 @@
+{
+  "status": "AMENDED_AFTER_FAILED_FIRST_RUN",
+  "original_lock_commit": "d233ce7",
+  "original_failed_run": "seed_104729__default",
+  "original_lock_sha256": "dbcbe960ba2e7e7c285c496cffb2630a2ce3eeb4db02630a22d949b98ae2a74e",
+  "original_marker_sha256": "c806bdf7be4bd7617a8d2744dfcc88734d914aa6c1e1761335036d5e38775306",
+  "evidence_class": "EXPLORATORY_AMENDED_NOT_UNTOUCHED",
+  "sources": {
+    "src/fdh_seeded_generator.py": "10494e05449fb52a26607dc3ac61deac5c3e3882ec19d4bfbafce05e5d288819",
+    "src/fdh_replication_evaluator.py": "b9969ac41f082417e7712ef69450ba9819ab1df9cdbc89ae044be03d9ee17590",
+    "src/fdh_replication_amended_runner.py": "df38d820a7444019af9edc50d69add22a8064b2b227f22aa480c765d7bc14b62",
+    "src/fdh_replication_runner.py": "818ca014adc737a5bf96910e34f2258e3e182e8e6c4139936bc415dad4620a29",
+    "notes/fdh_replication_incident_01.md": "51e1463528b5be6b32aeb3fc6527b3d2d2ea3163b62c947dcbe2fd2d5f630393",
+    "notes/fdh_amended_01_protocol.md": "0a3e6f9ce6b029c31f03798357795bdae331b659f09fbaa53b7a5ba20b270be0",
+    "notes/fdh_replication_evaluator_contract.md": "d8cb3cad195525d7e79dc2f4a33efadf5ba4ee7e162187edfbe4c7d55768082b",
+    "notes/fdh_replication_run_protocol.md": "7cf2c3b9a6f005b39e1f38d18f54287d863ecf5564989e7e8bc633d3aa044318"
+  },
+  "protocol": {
+    "generator": {
+      "purpose": "CONFIG_INSPECTION_ONLY_NO_DATA_GENERATION",
+      "upstream_notebook_commit": "eabce290e52013e1672963d3728e3d63cd8b0705",
+      "upstream_notebook_blob": "3af320f0098f23c11e7fb7ff8262d9cca59daffe",
+      "implementation": "original FDH-inspired separate seeded generator",
+      "randomness": "numpy SeedSequence([seed, domain, identity]); no global RNG",
+      "seeds": [
+        104729,
+        130363,
+        155921
+      ],
+      "regimes": [
+        "default",
+        "no_amount_shortcut",
+        "final_period_shift"
+      ],
+      "settings": {
+        "n_customers": 600,
+        "n_terminals": 3000,
+        "days": 90,
+        "proximity_radius": 12.0,
+        "mean_tx_per_day_min": 0.3,
+        "mean_tx_per_day_max": 2.2,
+        "amount_mean_min": 5.0,
+        "amount_mean_max": 100.0,
+        "fraud_amount_threshold": 220.0,
+        "terminal_compromises_per_day": 2,
+        "terminal_compromise_duration_days": 28,
+        "customer_compromises_per_day": 3,
+        "customer_compromise_duration_days": 14,
+        "compromised_customer_tx_fraction": 0.3333333333333333,
+        "compromised_amount_multiplier": 5.0,
+        "final_period_first_day": 72,
+        "final_period_amount_multiplier": 1.35,
+        "final_period_terminal_compromises_per_day": 3,
+        "final_period_customer_compromises_per_day": 5
+      },
+      "source_license_notice": "Upstream Fraud Detection Handbook notebook code: GPL-3.0. Current implementation is independently written from concepts; attribution/license review required before reuse in submission.",
+      "no_test_generation_without_lock": true
+    },
+    "training_days": [
+      0,
+      53
+    ],
+    "tuning_days": [
+      54,
+      71
+    ],
+    "final_days": [
+      72,
+      89
+    ],
+    "history_window_days": 7,
+    "label_delay_days": 7,
+    "models": [
+      "hgb_static",
+      "hgb_history"
+    ],
+    "review_budget": 0.01,
+    "review_block_size": 10000,
+    "score_cutoffs": "top 1 percent of tuning scores, no tuning labels",
+    "ties": "chronological arrival order with per-prefix cap",
+    "primary": "history HGB minus static HGB: detections and actual reviews",
+    "no_model_selection_after_generation": true,
+    "runs": [
+      {
+        "seed": 104729,
+        "regime": "default",
+        "id": "seed_104729__default"
+      },
+      {
+        "seed": 104729,
+        "regime": "no_amount_shortcut",
+        "id": "seed_104729__no_amount_shortcut"
+      },
+      {
+        "seed": 104729,
+        "regime": "final_period_shift",
+        "id": "seed_104729__final_period_shift"
+      },
+      {
+        "seed": 130363,
+        "regime": "default",
+        "id": "seed_130363__default"
+      },
+      {
+        "seed": 130363,
+        "regime": "no_amount_shortcut",
+        "id": "seed_130363__no_amount_shortcut"
+      },
+      {
+        "seed": 130363,
+        "regime": "final_period_shift",
+        "id": "seed_130363__final_period_shift"
+      },
+      {
+        "seed": 155921,
+        "regime": "default",
+        "id": "seed_155921__default"
+      },
+      {
+        "seed": 155921,
+        "regime": "no_amount_shortcut",
+        "id": "seed_155921__no_amount_shortcut"
+      },
+      {
+        "seed": 155921,
+        "regime": "final_period_shift",
+        "id": "seed_155921__final_period_shift"
+      }
+    ]
+  },
+  "environment": {
+    "python": "3.12.14",
+    "numpy": "2.5.4",
+    "scikit_learn": "1.9.1"
+  },
+  "note": "Original first run reached evaluator and failed; never represent this repeat as untouched confirmatory evidence. Dataset fingerprints recorded after generation. Three independent seeds across three paired regimes of one simplified synthetic simulator."
+}
