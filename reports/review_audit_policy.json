@@ -1,0 +1,181 @@
+{
+  "partition": "policy (steps 334-372)",
+  "purpose": "Diagnostic review-workload audit, not an untouched test",
+  "warning": "Top-k results require access to all policy-period scores and are retrospective diagnostics, not executable streaming policies. The final holdout was previously inspected and is not rerun.",
+  "frozen_policy_sha256": "3c73278fec1d11891e00e9cc7dc88fc7304beae6a3d9f79d100de764d00b826b",
+  "frozen_threshold": 0.011417806148529053,
+  "frozen_policy_overall": {
+    "transactions": 526517,
+    "frauds": 412,
+    "reviews": 5266,
+    "true_positives": 208,
+    "false_positives": 5058,
+    "false_negatives": 204,
+    "review_rate": 0.010001576397343295,
+    "precision": 0.03949867071781238,
+    "recall": 0.5048543689320388
+  },
+  "frozen_policy_by_type": {
+    "TRANSFER": {
+      "transactions": 44752,
+      "frauds": 206,
+      "reviews": 2456,
+      "true_positives": 185,
+      "false_positives": 2271,
+      "false_negatives": 21,
+      "review_rate": 0.0548802288165892,
+      "precision": 0.07532573289902281,
+      "recall": 0.8980582524271845
+    },
+    "CASH_OUT": {
+      "transactions": 179600,
+      "frauds": 206,
+      "reviews": 2810,
+      "true_positives": 23,
+      "false_positives": 2787,
+      "false_negatives": 183,
+      "review_rate": 0.015645879732739423,
+      "precision": 0.008185053380782919,
+      "recall": 0.11165048543689321
+    },
+    "PAYMENT": {
+      "transactions": 180729,
+      "frauds": 0,
+      "reviews": 0,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "review_rate": 0.0,
+      "precision": 0.0,
+      "recall": null
+    },
+    "CASH_IN": {
+      "transactions": 117068,
+      "frauds": 0,
+      "reviews": 0,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "review_rate": 0.0,
+      "precision": 0.0,
+      "recall": null
+    },
+    "DEBIT": {
+      "transactions": 4368,
+      "frauds": 0,
+      "reviews": 0,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "review_rate": 0.0,
+      "precision": 0.0,
+      "recall": null
+    }
+  },
+  "retrospective_top_k": [
+    {
+      "model": "A",
+      "fraction": 0.0025,
+      "transactions": 526517,
+      "frauds": 412,
+      "reviews": 1317,
+      "true_positives": 95,
+      "false_positives": 1222,
+      "false_negatives": 317,
+      "review_rate": 0.0025013437362896166,
+      "precision": 0.0721336370539104,
+      "recall": 0.23058252427184467
+    },
+    {
+      "model": "A",
+      "fraction": 0.005,
+      "transactions": 526517,
+      "frauds": 412,
+      "reviews": 2633,
+      "true_positives": 142,
+      "false_positives": 2491,
+      "false_negatives": 270,
+      "review_rate": 0.005000788198671648,
+      "precision": 0.053930877326243826,
+      "recall": 0.3446601941747573
+    },
+    {
+      "model": "A",
+      "fraction": 0.01,
+      "transactions": 526517,
+      "frauds": 412,
+      "reviews": 5266,
+      "true_positives": 200,
+      "false_positives": 5066,
+      "false_negatives": 212,
+      "review_rate": 0.010001576397343295,
+      "precision": 0.0379794910748196,
+      "recall": 0.4854368932038835
+    },
+    {
+      "model": "A",
+      "fraction": 0.02,
+      "transactions": 526517,
+      "frauds": 412,
+      "reviews": 10531,
+      "true_positives": 254,
+      "false_positives": 10277,
+      "false_negatives": 158,
+      "review_rate": 0.020001253520779007,
+      "precision": 0.024119266926217832,
+      "recall": 0.616504854368932
+    },
+    {
+      "model": "B",
+      "fraction": 0.0025,
+      "transactions": 526517,
+      "frauds": 412,
+      "reviews": 1317,
+      "true_positives": 98,
+      "false_positives": 1219,
+      "false_negatives": 314,
+      "review_rate": 0.0025013437362896166,
+      "precision": 0.07441154138192863,
+      "recall": 0.23786407766990292
+    },
+    {
+      "model": "B",
+      "fraction": 0.005,
+      "transactions": 526517,
+      "frauds": 412,
+      "reviews": 2633,
+      "true_positives": 144,
+      "false_positives": 2489,
+      "false_negatives": 268,
+      "review_rate": 0.005000788198671648,
+      "precision": 0.05469046714774022,
+      "recall": 0.34951456310679613
+    },
+    {
+      "model": "B",
+      "fraction": 0.01,
+      "transactions": 526517,
+      "frauds": 412,
+      "reviews": 5266,
+      "true_positives": 208,
+      "false_positives": 5058,
+      "false_negatives": 204,
+      "review_rate": 0.010001576397343295,
+      "precision": 0.03949867071781238,
+      "recall": 0.5048543689320388
+    },
+    {
+      "model": "B",
+      "fraction": 0.02,
+      "transactions": 526517,
+      "frauds": 412,
+      "reviews": 10531,
+      "true_positives": 260,
+      "false_positives": 10271,
+      "false_negatives": 152,
+      "review_rate": 0.020001253520779007,
+      "precision": 0.024689013389041878,
+      "recall": 0.6310679611650486
+    }
+  ]
+}
