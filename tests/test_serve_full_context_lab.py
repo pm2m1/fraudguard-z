@@ -52,6 +52,7 @@ def test_restart_duplicate_and_durable_review_quota(tmp_path, monkeypatch):
             assert duplicate.status_code == 200
             assert duplicate.json["duplicate"] is True
             assert journal.status()["committed_events"] == 100
+            assert journal.status()["reviewed_events"] == 1
             assert client.get("/stats", headers=headers).json["reviewed"] == 1
     finally:
         journal.close()
@@ -70,6 +71,7 @@ def test_restart_duplicate_and_durable_review_quota(tmp_path, monkeypatch):
                     "REVIEW" if i == 200 else "ALLOW"
                 )
             assert journal2.status()["committed_events"] == 200
+            assert journal2.status()["reviewed_events"] == 2
             assert client.get("/stats", headers=headers).json["reviewed"] == 2
             assert client.get("/stats", headers=headers).json["blocked"] == 0
     finally:
@@ -83,7 +85,8 @@ def test_fail_closed_on_count_divergence(tmp_path, monkeypatch):
     )
     app, journal = lab.open_local_lab(tmp_path/"mismatch.sqlite3", KEY, PASSWORD)
     try:
-        journal.committed_events += 1
+        # A corrupted counter projection must fail closed.
+        journal.reviewed_events = 1
         with pytest.raises(RuntimeError, match="decision count mismatch"):
             journal.process(transaction(1))
         assert journal.status()["healthy"] is False
