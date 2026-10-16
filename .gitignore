@@ -40,3 +40,8 @@ data/runtime/
 data/external/
 reports/banksim_final_evaluation_started.json
 reports/banksim_final_evaluation.json
+
+# One-time FDH-inspired replication outputs (lock itself is tracked)
+reports/fdh_replication_started.json
+reports/fdh_replication_summary.json
+reports/fdh_replication_runs/
