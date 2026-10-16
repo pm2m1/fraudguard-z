@@ -90,7 +90,7 @@ def build_lock():
         "note": (
             "Original first run reached evaluator and failed; never represent "
             "this repeat as untouched confirmatory evidence. "
-            "Dataset fingerprints recorded after generation. 
+            "Dataset fingerprints recorded after generation. "
             "Three independent seeds across three paired regimes "
             "of one simplified synthetic simulator."
         ),
