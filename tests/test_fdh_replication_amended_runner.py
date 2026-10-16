@@ -26,6 +26,7 @@ def test_amended_start_marker_requires_original_incident(monkeypatch, tmp_path):
     monkeypatch.setattr(amended, "START", tmp_path / "amended_started.json")
     monkeypatch.setattr(amended, "OUTPUT", tmp_path / "amended_summary.json")
     monkeypatch.setattr(amended, "RUN_DIR", tmp_path / "amended_runs")
+    monkeypatch.chdir(tmp_path)
     with pytest.raises(RuntimeError, match="Original failure marker"):
         amended.no_prior_run()
 
