@@ -129,3 +129,61 @@ def test_sparse_event_ids_cannot_inflate_committed_review_budget(tmp_path, monke
             assert stats["blocked"] == 0
     finally:
         journal.close()
+
+
+def test_real_policy_threshold_mutation_refused_before_unpickling(tmp_path, monkeypatch):
+    from src.full_context_calibration import INDICES, MODEL_NAME
+    from src.full_context_materialize import file_sha256
+    import joblib
+    from sklearn.linear_model import LogisticRegression
+
+    candidates = tmp_path / "candidates"
+    calibration = tmp_path / "calibration"
+    candidates.mkdir()
+    calibration.mkdir()
+    rng = np.random.default_rng(123)
+    x = rng.normal(size=(32, len(INDICES)))
+    y = np.tile([0, 1], 16)
+    model = LogisticRegression().fit(x, y)
+    mp = candidates / f"{MODEL_NAME}.joblib"
+    joblib.dump(model, mp)
+    from src.full_context import FULL_FEATURE_NAMES
+    (candidates / "comparison.json").write_text(json.dumps({
+        "status": "EXPLORATORY_SHORTCUT_SENSITIVITY_NOT_FOR_PROMOTION",
+        "candidates": [{
+            "candidate": MODEL_NAME,
+            "feature_names": [FULL_FEATURE_NAMES[i] for i in INDICES],
+            "model_sha256": file_sha256(mp)
+        }]
+    }))
+    cal = LogisticRegression().fit(
+        np.array([[-2.0], [-1.0], [1.0], [2.0]]), [0, 0, 1, 1]
+    )
+    cp = calibration / "calibrator.joblib"
+    joblib.dump(cal, cp)
+    (calibration / "calibration.json").write_text(json.dumps({
+        "status": "PROVISIONAL_CALIBRATION_FIT_ONLY",
+        "model_name": MODEL_NAME,
+        "model_sha256": file_sha256(mp),
+        "feature_indices": list(INDICES),
+        "block_enabled": False,
+        "calibrator_sha256": file_sha256(cp),
+        "split_manifest_sha256": "synthetic-manifest"
+    }))
+    policy = tmp_path / "policy.json"
+    policy.write_text(json.dumps({
+        "status": "POST_HOC_REVIEW_POLICY_V2_SIMULATION_ONLY",
+        "model": MODEL_NAME,
+        "model_sha256": file_sha256(mp),
+        "calibrator_sha256": file_sha256(cp),
+        "split_manifest_sha256": "synthetic-manifest",
+        "block_enabled": False,
+        "blocks": 0,
+        "review_budget_fraction": 0.01,
+        "tie_rule": "inclusive cutoff; arrival-order prefix cap",
+        "policy_rows": 526517,
+        "policy_frauds": 412,
+        "calibration_threshold": 0.51,
+    }))
+    with pytest.raises(RuntimeError, match="Frozen policy threshold mismatch"):
+        lab.load_frozen_lab_artifacts(candidates, calibration, policy)
