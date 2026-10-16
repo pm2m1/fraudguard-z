@@ -1,0 +1,5 @@
+{
+  "started_at_utc": "2026-10-16T19:56:04.534241+00:00",
+  "lock_sha256": "dbff999eaebfc53dfe280673cba74b1747acc01269a249a2054648017a15f340",
+  "note": "Preserve marker even if a run fails; no silent reruns"
+}

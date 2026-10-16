@@ -1,0 +1,87 @@
+{
+  "status": "COMPLETED_EXPLORATORY_AMENDED_REPLICATION",
+  "original_failed_run": "seed_104729__default",
+  "not_untouched_confirmatory": true,
+  "lock_sha256": "dbff999eaebfc53dfe280673cba74b1747acc01269a249a2054648017a15f340",
+  "total_runs": 9,
+  "by_regime": {
+    "default": {
+      "seeds": [
+        104729,
+        130363,
+        155921
+      ],
+      "extra_fraud_detections_per_seed": [
+        -9,
+        0,
+        0
+      ],
+      "review_differences_per_seed": [
+        -9,
+        0,
+        0
+      ],
+      "mean_detection_difference_descriptive": -3.0,
+      "minimum_detection_difference": -9,
+      "maximum_detection_difference": 0,
+      "positive_seed_count": 0,
+      "warning": "Only three seeds; descriptive, not IID confidence bounds"
+    },
+    "no_amount_shortcut": {
+      "seeds": [
+        104729,
+        130363,
+        155921
+      ],
+      "extra_fraud_detections_per_seed": [
+        0,
+        -1,
+        -2
+      ],
+      "review_differences_per_seed": [
+        0,
+        0,
+        0
+      ],
+      "mean_detection_difference_descriptive": -1.0,
+      "minimum_detection_difference": -2,
+      "maximum_detection_difference": 0,
+      "positive_seed_count": 0,
+      "warning": "Only three seeds; descriptive, not IID confidence bounds"
+    },
+    "final_period_shift": {
+      "seeds": [
+        104729,
+        130363,
+        155921
+      ],
+      "extra_fraud_detections_per_seed": [
+        -1,
+        0,
+        -4
+      ],
+      "review_differences_per_seed": [
+        -1,
+        0,
+        0
+      ],
+      "mean_detection_difference_descriptive": -1.6666666666666667,
+      "minimum_detection_difference": -4,
+      "maximum_detection_difference": 0,
+      "positive_seed_count": 0,
+      "warning": "Only three seeds; descriptive, not IID confidence bounds"
+    }
+  },
+  "run_fingerprints": {
+    "seed_104729__default": "0034e1416e7e6077aecc885a444004f1497a12535ff40ed6f181ba615ee04f2d",
+    "seed_104729__no_amount_shortcut": "c3ab924900b7de1865bcd8394ae94cba276c11f94f20aca264698a4c1a6f4e26",
+    "seed_104729__final_period_shift": "927b76f3f8409dee7b9fa5aec3851d7026de4b83a25e758ee87cedba303a12d5",
+    "seed_130363__default": "cd7ce92846ae9085c0f1be587c98a4062c17f62e11e879261ab35b458199f0d0",
+    "seed_130363__no_amount_shortcut": "4c3eb42bc5cfec7597ea1bab24b32d6333d08a2607403eee46cb22424963c566",
+    "seed_130363__final_period_shift": "74453cf1ef5136a8872bf61e98cea7a113992e992e17f6f7cfd6ba9248cb6472",
+    "seed_155921__default": "c9b0df8a6fe7680e268288dab21a5ec9633c100b7aa1d91e70a034e19a059e3e",
+    "seed_155921__no_amount_shortcut": "6c03b9215f5ab1783babd77b74a3c4e1166744c8a18e497f83a47ab2fa7a9d50",
+    "seed_155921__final_period_shift": "f71c9f79105c59947a9bafa31035f1092ea0d74d378acb4fe3391aae9a8645ba"
+  },
+  "limits": "Three independent seeds and three paired regimes from one synthetic simulator. Not real-world validation. No model or review-policy promotion."
+}

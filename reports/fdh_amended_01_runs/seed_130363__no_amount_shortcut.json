@@ -1,0 +1,167 @@
+{
+  "id": "seed_130363__no_amount_shortcut",
+  "seed": 130363,
+  "regime": "no_amount_shortcut",
+  "dataset_fingerprint_sha256": "4c3eb42bc5cfec7597ea1bab24b32d6333d08a2607403eee46cb22424963c566",
+  "events": 65958,
+  "evaluation": {
+    "train_rows": 39455,
+    "tuning_rows": 13191,
+    "final_rows": 13312,
+    "train_steps": [
+      0,
+      53
+    ],
+    "tuning_steps": [
+      54,
+      71
+    ],
+    "final_steps": [
+      72,
+      89
+    ],
+    "maximum_review_fraction": 0.01,
+    "block_size": 10000,
+    "label_delay_days": 7,
+    "model_results": {
+      "hgb_static": {
+        "feature_count": 5,
+        "tuning_cutoff_uncalibrated": 0.9978861216438276,
+        "evaluation": {
+          "transactions": 13312,
+          "frauds": 537,
+          "reviews": 130,
+          "review_fraction": 0.009765625,
+          "detected": 130,
+          "false_alerts": 0,
+          "missed_frauds": 407,
+          "precision": 1.0,
+          "recall": 0.24208566108007448,
+          "pr_auc_ranking_only": 0.4986406327307443,
+          "reviews_by_day": {
+            "72": 3,
+            "73": 6,
+            "74": 3,
+            "75": 15,
+            "76": 8,
+            "77": 7,
+            "78": 7,
+            "79": 8,
+            "80": 7,
+            "81": 8,
+            "82": 7,
+            "83": 8,
+            "84": 7,
+            "85": 5,
+            "86": 8,
+            "87": 8,
+            "88": 7,
+            "89": 8
+          },
+          "detected_by_scenario": {
+            "1": 0,
+            "2": 0,
+            "3": 130
+          },
+          "frauds_by_scenario": {
+            "1": 0,
+            "2": 231,
+            "3": 306
+          },
+          "delayed_label_accounting": {
+            "lag_days": 7,
+            "released_during_final_stream": 8024,
+            "released_after_final_watermark": 5288,
+            "total_eventual_labels": 13312,
+            "all_labels_released": true,
+            "detected_after_reporting_delay": 130,
+            "maximum_pending": 5288
+          }
+        }
+      },
+      "hgb_history": {
+        "feature_count": 10,
+        "tuning_cutoff_uncalibrated": 0.9976509328904004,
+        "evaluation": {
+          "transactions": 13312,
+          "frauds": 537,
+          "reviews": 130,
+          "review_fraction": 0.009765625,
+          "detected": 129,
+          "false_alerts": 1,
+          "missed_frauds": 408,
+          "precision": 0.9923076923076923,
+          "recall": 0.24022346368715083,
+          "pr_auc_ranking_only": 0.5017713388464405,
+          "reviews_by_day": {
+            "72": 4,
+            "73": 7,
+            "74": 4,
+            "75": 13,
+            "76": 7,
+            "77": 8,
+            "78": 6,
+            "79": 8,
+            "80": 7,
+            "81": 7,
+            "82": 8,
+            "83": 8,
+            "84": 7,
+            "85": 5,
+            "86": 8,
+            "87": 8,
+            "88": 7,
+            "89": 8
+          },
+          "detected_by_scenario": {
+            "1": 0,
+            "2": 0,
+            "3": 129
+          },
+          "frauds_by_scenario": {
+            "1": 0,
+            "2": 231,
+            "3": 306
+          },
+          "delayed_label_accounting": {
+            "lag_days": 7,
+            "released_during_final_stream": 8024,
+            "released_after_final_watermark": 5288,
+            "total_eventual_labels": 13312,
+            "all_labels_released": true,
+            "detected_after_reporting_delay": 129,
+            "maximum_pending": 5288
+          }
+        }
+      }
+    },
+    "paired_comparison": {
+      "extra_detected_history_minus_static": -1,
+      "history_only_detected": 14,
+      "static_only_detected": 15,
+      "history_only_reviews": 15,
+      "static_only_reviews": 15,
+      "day_by_day_extra_detection": {
+        "72": 1,
+        "73": 1,
+        "74": 0,
+        "75": -2,
+        "76": -1,
+        "77": 1,
+        "78": -1,
+        "79": 0,
+        "80": 0,
+        "81": -1,
+        "82": 1,
+        "83": 0,
+        "84": 0,
+        "85": 0,
+        "86": 0,
+        "87": 0,
+        "88": 0,
+        "89": 0
+      }
+    },
+    "warning": "Scores uncalibrated; same maximum 1% budget, not necessarily equal actual review volume. Label delay only changes accounting. Synthetic simulator results, not validation on real payments."
+  }
+}
