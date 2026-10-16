@@ -39,17 +39,34 @@ def load_model(filename):
     return joblib.load(model_path)
 
 
-def main():
-    deployment_mode = os.environ.get("FGZ_DEPLOYMENT_MODE", "local")
-    if deployment_mode not in ("local", "production"):
+def check_deployment_mode(*, production=False):
+    """Fail closed on unsafe production startup configurations."""
+    mode = os.environ.get("FGZ_DEPLOYMENT_MODE", "local")
+    if mode not in ("local", "production"):
         raise RuntimeError("FGZ_DEPLOYMENT_MODE must be local or production")
-    privacy_key = os.environ.get("FGZ_PRIVACY_KEY")
-    if deployment_mode == "production":
-        if not os.environ.get("FGZ_AUTH_PASSWORD"):
-            raise RuntimeError("Production mode requires FGZ_AUTH_PASSWORD")
-        if not privacy_key:
-            raise RuntimeError("Production mode requires FGZ_PRIVACY_KEY")
-        raise RuntimeError("Production mode cannot use the Flask development server; deploy a single-worker authenticated TLS-protected WSGI service instead")
+    if production:
+        if mode != "production":
+            raise RuntimeError("WSGI entry point requires FGZ_DEPLOYMENT_MODE=production")
+        password = os.environ.get("FGZ_AUTH_PASSWORD", "")
+        if len(password) < 16:
+            raise RuntimeError("Production requires FGZ_AUTH_PASSWORD of at least 16 characters")
+        privacy_key = os.environ.get("FGZ_PRIVACY_KEY", "")
+        if len(privacy_key.encode("utf-8")) < 32:
+            raise RuntimeError("Production requires FGZ_PRIVACY_KEY of at least 32 bytes")
+        if not os.environ.get("FGZ_DB_PATH"):
+            raise RuntimeError("Production requires an explicit FGZ_DB_PATH")
+    elif mode == "production":
+        raise RuntimeError(
+            "Production mode cannot use the Flask development server. "
+            "Use a single-worker WSGI server bound to loopback with TLS at a reverse proxy."
+        )
+    return os.environ.get("FGZ_PRIVACY_KEY")
+
+
+def build_app(*, production=False):
+    """Build a fresh scoring app after checking deployment and model invariants."""
+    privacy_key = check_deployment_mode(production=production)
+
     policy_path = REPORTS / "review_policy.json"
 
     with policy_path.open() as file:
@@ -100,11 +117,15 @@ def main():
     )
 
     app = create_app(engine)
+    return app
 
+
+def main():
+    app = build_app(production=False)
+    engine = app.extensions["decision_engine"]
     try:
         print("FraudGuard Z listening on http://127.0.0.1:5050")
-        print(f"SQLite database: {db_path}")
-
+        print("SQLite database configured")
         app.run(
             host="127.0.0.1",
             port=5050,
