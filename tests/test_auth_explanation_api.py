@@ -74,3 +74,23 @@ def test_short_password_fails_at_startup(tmp_path, monkeypatch):
             create_app(engine)
     finally:
         engine.close()
+
+
+def test_no_password_cannot_access_explanations(tmp_path, monkeypatch):
+    monkeypatch.delenv("FGZ_AUTH_PASSWORD", raising=False)
+    engine = DecisionEngine(tmp_path / "no_auth.sqlite3", FakeModel(), FakeCalibrator(), 0.5)
+    try:
+        client = create_app(engine).test_client()
+        response = client.get("/transactions/E1/explanation")
+        assert response.status_code == 403
+    finally:
+        engine.close()
+
+
+def test_authorized_dashboard_contains_explanation_panel(guarded):
+    client, _ = guarded
+    headers = basic_auth_header("this-is-a-demo-password-of-sufficient-length")
+    result = client.get("/", headers=headers)
+    assert result.status_code == 200
+    assert b"Why this decision?" in result.data
+    assert b"Math.max(1, lastPosition[0] + 1)" in result.data
