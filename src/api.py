@@ -1,12 +1,16 @@
 
 import sqlite3
 
+from .auth import configure_auth
+from .explanations import explain_record, ExplanationUnavailable
+
 from flask import Flask, jsonify, render_template, request
 
 def create_app(engine):
     app = Flask(__name__)
     app.json.sort_keys = False
     app.extensions["decision_engine"] = engine
+    configure_auth(app)
 
     @app.get("/")
     def dashboard():
@@ -117,5 +121,22 @@ def create_app(engine):
             return jsonify({
                 "error": "Could not calculate statistics"
             }), 503
+
+    @app.get("/transactions/<path:event_id>/explanation")
+    def explain_transaction(event_id):
+        try:
+            with engine.lock:
+                record = engine.db.execute(
+                    "SELECT event_id, features_json, risk, decision, schema_version "
+                    "FROM decisions WHERE event_id = ?", (event_id,)
+                ).fetchone()
+                if record is None:
+                    return jsonify({"error": "Transaction not found"}), 404
+                explanation = explain_record(engine, record)
+            return jsonify(explanation), 200
+        except ExplanationUnavailable:
+            return jsonify({"error": "Explanation unavailable for this model"}), 422
+        except sqlite3.Error:
+            return jsonify({"error": "Could not load transaction"}), 503
 
     return app
