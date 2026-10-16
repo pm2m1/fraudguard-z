@@ -35,3 +35,8 @@ reports/*.npz
 
 # Local database
 data/runtime/
+
+# Independent synthetic datasets and one-time evaluation guard
+data/external/
+reports/banksim_final_evaluation_started.json
+reports/banksim_final_evaluation.json
