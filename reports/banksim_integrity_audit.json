@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "errors": [],
+  "checks_scope": "Archived aggregate arithmetic, per-step review totals, reported delayed-label accounting and pinned hashes. Cannot verify event-level decisions, per-block prefix caps, paired outcome uncertainty or runtime leakage without reprocessing individual evaluation records.",
+  "models": {
+    "lr_static": {
+      "transactions": 133231,
+      "frauds": 1440,
+      "reviews": 1072,
+      "tp": 787,
+      "fp": 285,
+      "fn": 653,
+      "review_fraction": 0.008046175439649932,
+      "min_daily_reviews": 13,
+      "max_daily_reviews": 41,
+      "mean_daily_reviews": 29.77777777777778
+    },
+    "hgb_static": {
+      "transactions": 133231,
+      "frauds": 1440,
+      "reviews": 1201,
+      "tp": 934,
+      "fp": 267,
+      "fn": 506,
+      "review_fraction": 0.009014418566249597,
+      "min_daily_reviews": 22,
+      "max_daily_reviews": 44,
+      "mean_daily_reviews": 33.361111111111114
+    },
+    "hgb_history": {
+      "transactions": 133231,
+      "frauds": 1440,
+      "reviews": 1141,
+      "tp": 1024,
+      "fp": 117,
+      "fn": 416,
+      "review_fraction": 0.008564072925970683,
+      "min_daily_reviews": 21,
+      "max_daily_reviews": 41,
+      "mean_daily_reviews": 31.694444444444443
+    },
+    "hgb_amount_only": {
+      "transactions": 133231,
+      "frauds": 1440,
+      "reviews": 1219,
+      "tp": 828,
+      "fp": 391,
+      "fn": 612,
+      "review_fraction": 0.009149522258333272,
+      "min_daily_reviews": 24,
+      "max_daily_reviews": 41,
+      "mean_daily_reviews": 33.861111111111114
+    }
+  },
+  "primary_difference": {
+    "extra_tp": 90,
+    "fewer_false_positives": 150,
+    "fewer_reviews": 60
+  }
+}
