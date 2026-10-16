@@ -124,6 +124,8 @@ def create_app(engine):
 
     @app.get("/transactions/<path:event_id>/explanation")
     def explain_transaction(event_id):
+        if not app.extensions.get("fraudguard_auth_configured"):
+            return jsonify({"error": "Explanation access requires configured authentication"}), 403
         try:
             with engine.lock:
                 record = engine.db.execute(
