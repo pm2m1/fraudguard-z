@@ -1,0 +1,142 @@
+{
+  "status": "EXPERIMENTAL - not deployed or calibrated",
+  "partitions": "Train steps 1-238; validation steps 239-306 only",
+  "warning": "Original final holdout already inspected. These validation results are development diagnostics, not a fresh independent test. Retrospective global top-1% ranking is not a streaming policy.",
+  "model_c_schema": [
+    "log_amount",
+    "txn_type_CASH_IN",
+    "txn_type_CASH_OUT",
+    "txn_type_DEBIT",
+    "txn_type_PAYMENT",
+    "txn_type_TRANSFER",
+    "log_sender_pre_balance",
+    "log_recipient_in_count_6h",
+    "log_amount_over_sender_balance",
+    "sender_balance_nearly_drained",
+    "amount_exceeds_sender_balance",
+    "log_sender_out_count_6h",
+    "log_sender_out_amount_6h",
+    "log_recipient_in_amount_6h",
+    "log_recipient_unique_senders_6h",
+    "log_steps_since_sender_event_capped_7h",
+    "log_steps_since_recipient_event_capped_7h"
+  ],
+  "model_b": {
+    "overall": {
+      "rows": 1085341,
+      "frauds": 760,
+      "reviews": 10854,
+      "true_positives": 364,
+      "false_positives": 10490,
+      "precision": 0.03353602358577483,
+      "recall": 0.4789473684210526,
+      "pr_auc": 0.03296909645212017
+    },
+    "by_type_at_global_1pct": {
+      "TRANSFER": {
+        "rows": 90038,
+        "frauds": 380,
+        "reviews": 5362,
+        "true_positives": 328,
+        "false_positives": 5034,
+        "recall": 0.8631578947368421,
+        "precision": 0.061171204774337934
+      },
+      "CASH_OUT": {
+        "rows": 383597,
+        "frauds": 380,
+        "reviews": 5492,
+        "true_positives": 36,
+        "false_positives": 5456,
+        "recall": 0.09473684210526316,
+        "precision": 0.0065549890750182084
+      },
+      "PAYMENT": {
+        "rows": 368301,
+        "frauds": 0,
+        "reviews": 0,
+        "true_positives": 0,
+        "false_positives": 0,
+        "recall": null,
+        "precision": null
+      },
+      "CASH_IN": {
+        "rows": 237166,
+        "frauds": 0,
+        "reviews": 0,
+        "true_positives": 0,
+        "false_positives": 0,
+        "recall": null,
+        "precision": null
+      },
+      "DEBIT": {
+        "rows": 6239,
+        "frauds": 0,
+        "reviews": 0,
+        "true_positives": 0,
+        "false_positives": 0,
+        "recall": null,
+        "precision": null
+      }
+    }
+  },
+  "model_c": {
+    "overall": {
+      "rows": 1085341,
+      "frauds": 760,
+      "reviews": 10854,
+      "true_positives": 760,
+      "false_positives": 10094,
+      "precision": 0.07002026902524415,
+      "recall": 1.0,
+      "pr_auc": 0.9916821988985419
+    },
+    "by_type_at_global_1pct": {
+      "TRANSFER": {
+        "rows": 90038,
+        "frauds": 380,
+        "reviews": 5193,
+        "true_positives": 380,
+        "false_positives": 4813,
+        "recall": 1.0,
+        "precision": 0.07317542846139033
+      },
+      "CASH_OUT": {
+        "rows": 383597,
+        "frauds": 380,
+        "reviews": 5442,
+        "true_positives": 380,
+        "false_positives": 5062,
+        "recall": 1.0,
+        "precision": 0.06982726938625505
+      },
+      "PAYMENT": {
+        "rows": 368301,
+        "frauds": 0,
+        "reviews": 200,
+        "true_positives": 0,
+        "false_positives": 200,
+        "recall": null,
+        "precision": 0.0
+      },
+      "CASH_IN": {
+        "rows": 237166,
+        "frauds": 0,
+        "reviews": 4,
+        "true_positives": 0,
+        "false_positives": 4,
+        "recall": null,
+        "precision": 0.0
+      },
+      "DEBIT": {
+        "rows": 6239,
+        "frauds": 0,
+        "reviews": 15,
+        "true_positives": 0,
+        "false_positives": 15,
+        "recall": null,
+        "precision": 0.0
+      }
+    }
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "description": "Exact positive sender-balance match diagnostic",
+  "rule": "oldbalanceOrg > 0 and abs(amount-oldbalanceOrg) < 0.01",
+  "warning": "A synthetic-data shortcut is not independent fraud evidence. Only train steps 1-238 and validation steps 239-306 are inspected. The original final holdout is not read.",
+  "train": {
+    "ALL": {
+      "transactions": 3177938,
+      "frauds": 2695,
+      "matching_transactions": 2639,
+      "matching_frauds": 2639,
+      "matching_legitimate": 0,
+      "precision_of_rule": 1.0,
+      "recall_of_rule": 0.9792207792207792
+    },
+    "PAYMENT": {
+      "transactions": 1066214,
+      "frauds": 0,
+      "matching_transactions": 0,
+      "matching_frauds": 0,
+      "matching_legitimate": 0,
+      "precision_of_rule": null,
+      "recall_of_rule": null
+    },
+    "TRANSFER": {
+      "transactions": 262855,
+      "frauds": 1338,
+      "matching_transactions": 1308,
+      "matching_frauds": 1308,
+      "matching_legitimate": 0,
+      "precision_of_rule": 1.0,
+      "recall_of_rule": 0.9775784753363229
+    },
+    "CASH_OUT": {
+      "transactions": 1131961,
+      "frauds": 1357,
+      "matching_transactions": 1331,
+      "matching_frauds": 1331,
+      "matching_legitimate": 0,
+      "precision_of_rule": 1.0,
+      "recall_of_rule": 0.9808400884303611
+    },
+    "DEBIT": {
+      "transactions": 19980,
+      "frauds": 0,
+      "matching_transactions": 0,
+      "matching_frauds": 0,
+      "matching_legitimate": 0,
+      "precision_of_rule": null,
+      "recall_of_rule": null
+    },
+    "CASH_IN": {
+      "transactions": 696928,
+      "frauds": 0,
+      "matching_transactions": 0,
+      "matching_frauds": 0,
+      "matching_legitimate": 0,
+      "precision_of_rule": null,
+      "recall_of_rule": null
+    }
+  },
+  "validation": {
+    "ALL": {
+      "transactions": 1085341,
+      "frauds": 760,
+      "matching_transactions": 742,
+      "matching_frauds": 741,
+      "matching_legitimate": 1,
+      "precision_of_rule": 0.9986522911051213,
+      "recall_of_rule": 0.975
+    },
+    "PAYMENT": {
+      "transactions": 368301,
+      "frauds": 0,
+      "matching_transactions": 1,
+      "matching_frauds": 0,
+      "matching_legitimate": 1,
+      "precision_of_rule": 0.0,
+      "recall_of_rule": null
+    },
+    "CASH_OUT": {
+      "transactions": 383597,
+      "frauds": 380,
+      "matching_transactions": 378,
+      "matching_frauds": 378,
+      "matching_legitimate": 0,
+      "precision_of_rule": 1.0,
+      "recall_of_rule": 0.9947368421052631
+    },
+    "CASH_IN": {
+      "transactions": 237166,
+      "frauds": 0,
+      "matching_transactions": 0,
+      "matching_frauds": 0,
+      "matching_legitimate": 0,
+      "precision_of_rule": null,
+      "recall_of_rule": null
+    },
+    "TRANSFER": {
+      "transactions": 90038,
+      "frauds": 380,
+      "matching_transactions": 363,
+      "matching_frauds": 363,
+      "matching_legitimate": 0,
+      "precision_of_rule": 1.0,
+      "recall_of_rule": 0.9552631578947368
+    },
+    "DEBIT": {
+      "transactions": 6239,
+      "frauds": 0,
+      "matching_transactions": 0,
+      "matching_frauds": 0,
+      "matching_legitimate": 0,
+      "precision_of_rule": null,
+      "recall_of_rule": null
+    }
+  }
+}
