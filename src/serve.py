@@ -40,6 +40,16 @@ def load_model(filename):
 
 
 def main():
+    deployment_mode = os.environ.get("FGZ_DEPLOYMENT_MODE", "local")
+    if deployment_mode not in ("local", "production"):
+        raise RuntimeError("FGZ_DEPLOYMENT_MODE must be local or production")
+    privacy_key = os.environ.get("FGZ_PRIVACY_KEY")
+    if deployment_mode == "production":
+        if not os.environ.get("FGZ_AUTH_PASSWORD"):
+            raise RuntimeError("Production mode requires FGZ_AUTH_PASSWORD")
+        if not privacy_key:
+            raise RuntimeError("Production mode requires FGZ_PRIVACY_KEY")
+        raise RuntimeError("Production mode cannot use the Flask development server; deploy a single-worker authenticated TLS-protected WSGI service instead")
     policy_path = REPORTS / "review_policy.json"
 
     with policy_path.open() as file:
@@ -86,6 +96,7 @@ def main():
         model,
         calibrator,
         float(policy["review_threshold"]),
+        privacy_key=privacy_key,
     )
 
     app = create_app(engine)
