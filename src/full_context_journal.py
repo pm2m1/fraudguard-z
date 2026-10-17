@@ -273,6 +273,18 @@ class FullContextJournal:
                             and isfinite(existing["calibrated_risk"])
                             and 0 <= existing["calibrated_risk"] <= 1
                         )
+                        if valid:
+                            saved_vector = np.asarray(saved, dtype=np.float32)
+                            if (saved_vector.shape != (len(FULL_FEATURE_NAMES),)
+                                    or not np.isfinite(saved_vector).all()):
+                                valid = False
+                            else:
+                                recomputed_risk = float(self.score_calibrated(
+                                    saved_vector.reshape(1, -1)
+                                ))
+                                valid = (isfinite(recomputed_risk)
+                                         and 0 <= recomputed_risk <= 1
+                                         and abs(recomputed_risk - existing["calibrated_risk"]) <= 1e-8)
                         if not valid:
                             raise RuntimeError("Committed duplicate integrity mismatch")
                         result = self._result(
