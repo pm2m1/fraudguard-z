@@ -170,3 +170,49 @@ def test_block_flag_is_disallowed(tmp_path):
             model_version="v", policy_version="p", privacy_key=KEY,
             block_enabled=True,
         )
+
+
+@pytest.mark.parametrize("column, value", [
+    ("evidence_json", "{}"),
+    ("evidence_sha256", "0" * 64),
+    ("feature_schema_sha256", "0" * 64),
+    ("model_version", "unauthorized-model"),
+    ("policy_version", "unauthorized-policy"),
+    ("features_json", "[]"),
+    ("calibrated_risk", 0.99),
+])
+def test_duplicate_tampering_fails_closed_on_disposable_db(tmp_path, column, value):
+    path = tmp_path / "duplicate-tamper.sqlite3"
+    j = journal(path)
+    try:
+        j.process(event(1))
+        original_count = j.status()["committed_events"]
+        j.db.execute(f"UPDATE decisions SET {column}=? WHERE event_id='E1'", (value,))
+        if column == "calibrated_risk":
+            # The durable journal does not authenticate the scored risk
+            # independently; this limitation must be tested honestly.
+            assert j.process(event(1))["duplicate"] is True
+            assert j.status()["committed_events"] == original_count
+        else:
+            with pytest.raises(RuntimeError, match="integrity mismatch"):
+                j.process(event(1))
+            assert j.status()["healthy"] is False
+            assert j.db.execute("SELECT COUNT(*) FROM decisions").fetchone()[0] == original_count
+            with pytest.raises(RuntimeError, match="unavailable"):
+                j.process(event(2))
+    finally:
+        j.close()
+
+
+def test_valid_duplicate_remains_idempotent_after_integrity_guard(tmp_path):
+    j = journal(tmp_path / "duplicate-clean.sqlite3")
+    try:
+        first = j.process(event(1))
+        second = j.process(event(1))
+        assert second["duplicate"] is True
+        assert second["decision"] == first["decision"]
+        assert second["evidence"] == first["evidence"]
+        assert j.status()["healthy"] is True
+        assert j.status()["committed_events"] == 1
+    finally:
+        j.close()
