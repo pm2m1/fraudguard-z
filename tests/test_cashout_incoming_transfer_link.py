@@ -23,7 +23,8 @@ def test_expiry_boundaries_and_repeated_recipient_steps():
     ledger = IncomingTransferLedger()
     ledger.observe(1, "TRANSFER", "B")
     ledger.observe(2, "TRANSFER", "B")
-    assert ledger.before(6, "B") == (1, 2, 4)
+    # At step 6, step 1 is still inside (prior_step > 6 - 6).
+    assert ledger.before(6, "B") == (2, 2, 4)
     assert ledger.before(7, "B") == (1, 2, 5)
     assert ledger.before(8, "B") == (0, 2, 6)
     assert ledger.before(25, "B") == (0, 1, 23)
