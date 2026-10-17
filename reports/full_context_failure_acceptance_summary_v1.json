@@ -1,0 +1,43 @@
+{
+  "status": "PASS_LOCAL_IN_PROCESS_FAILURE_ACCEPTANCE",
+  "scope": "TEMPORARY_SYNTHETIC_TEST_FIXTURES_ONLY",
+  "checks_passed": 8,
+  "checks": [
+    {
+      "name": "auth_and_static_asset_protection",
+      "passed": true
+    },
+    {
+      "name": "origin_protection_and_security_headers",
+      "passed": true
+    },
+    {
+      "name": "invalid_and_oversized_input",
+      "passed": true
+    },
+    {
+      "name": "duplicates_conflicts_order",
+      "passed": true
+    },
+    {
+      "name": "history_evidence_privacy_no_block",
+      "passed": true
+    },
+    {
+      "name": "restart_duplicate_evidence_version_key",
+      "passed": true
+    },
+    {
+      "name": "tamper_detected_on_reads_and_restart",
+      "passed": true
+    },
+    {
+      "name": "postcommit_failure_recovery",
+      "passed": true
+    }
+  ],
+  "wall_seconds": 0.03807958401739597,
+  "blocked": 0,
+  "production_validated": false,
+  "warning": "Not a concurrent or network/TLS/WSGI/LinuxONE acceptance. No model accuracy claim. Original PaySim/data artifacts untouched; existing CASH_OUT detection limitation unresolved."
+}
