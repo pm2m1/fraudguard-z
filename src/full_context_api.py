@@ -41,6 +41,38 @@ def create_full_context_app(
         raise ValueError("Scoring source must be explicitly labeled")
     app = Flask(__name__)
     app.json.sort_keys = False
+    app.config["MAX_CONTENT_LENGTH"] = 32 * 1024
+
+    @app.before_request
+    def same_origin_write_guard():
+        # A browser can retain Basic credentials; deny cross-origin mutations.
+        if request.method == "POST":
+            origin = request.headers.get("Origin")
+            if origin:
+                from urllib.parse import urlsplit
+                try:
+                    parsed = urlsplit(origin)
+                    allowed = (
+                        parsed.scheme in ("http", "https")
+                        and parsed.netloc == request.host
+                    )
+                except ValueError:
+                    allowed = False
+                if not allowed:
+                    return jsonify({"error": "Cross-origin writes are disabled"}), 403
+
+    @app.after_request
+    def browser_security_headers(response):
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'none'; script-src 'self'; style-src 'self'; "
+            "connect-src 'self'; img-src 'self'; form-action 'self'; "
+            "base-uri 'none'; frame-ancestors 'none'"
+        )
+        return response
+
     app.extensions["full_context_journal"] = journal
     configure_auth(app, password=auth_password)
 
