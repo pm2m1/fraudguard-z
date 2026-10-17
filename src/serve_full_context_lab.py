@@ -13,6 +13,7 @@ import numpy as np
 from .full_context_api import create_full_context_app
 from .full_context_calibration import INDICES, MODEL_NAME, verify_model
 from .full_context_journal import FullContextJournal
+from .full_context_margin_attribution import explain_margin
 from .full_context_materialize import file_sha256
 from .full_context_policy_v2 import OUTPUT as POLICY_OUTPUT
 from .full_context_policy import CANDIDATES, CALIBRATION
@@ -67,6 +68,9 @@ def load_frozen_lab_artifacts(candidates=CANDIDATES, calibration=CALIBRATION,
             or float(calibrator.coef_[0, 0]) <= 0):
         raise RuntimeError("Frozen model/calibrator interface mismatch")
 
+    def attribution(full_features):
+        return explain_margin(model, full_features)
+
     def score(full_features):
         array = np.asarray(full_features, dtype=np.float32)
         if array.shape != (1, 21):
@@ -78,6 +82,9 @@ def load_frozen_lab_artifacts(candidates=CANDIDATES, calibration=CALIBRATION,
             raise RuntimeError("Invalid fitted simulation score")
         return risk
 
+    # Expose attribution through the scorer, preserving the original four-item
+    # artifact loader return contract used by existing callers/tests.
+    score.explain_margin = attribution
     return score, float(threshold), ("lab-v2-" + file_sha256(policy)[:16]), (
         MODEL_NAME + "-" + digest[:16]
     )
@@ -119,6 +126,7 @@ def open_local_lab(db_path, privacy_key, password, *,
     app = create_full_context_app(
         journal, auth_password=password,
         scoring_source="POST_HOC_PAYSIM_LOCAL_LAB_NOT_DEPLOYABLE",
+        attribution_provider=getattr(score, "explain_margin", None),
     )
     return app, journal
 
