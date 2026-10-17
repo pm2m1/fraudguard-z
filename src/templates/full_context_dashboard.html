@@ -1,11 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FraudGuard Z — Full Context Lab</title>
-<style>
-:root{font-family:system-ui,-apple-system,sans-serif;color:#e6eef8;background:#0b1220;color-scheme:dark}*{box-sizing:border-box}body{margin:0}main{max-width:1280px;margin:auto;padding:28px}h1{margin:0;font-size:1.8rem}p{color:#aabbd0}header{display:flex;justify-content:space-between;gap:15px;align-items:start;margin-bottom:20px}small{color:#b7c6d8}.warn{color:#fcd28d}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.card{background:#152236;border:1px solid #30435d;border-radius:14px;padding:18px}.metric{font-size:1.7rem;font-weight:700;margin:10px 0}.split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}input,select,button{font:inherit;padding:10px;border-radius:8px}input,select{width:100%;background:#0c1728;color:#eff5fd;border:1px solid #405671}button{background:#65d4cc;color:#062521;border:0;font-weight:700;cursor:pointer}label{display:block;margin:10px 0;color:#b8c9dd}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;border-bottom:1px solid #30435d;padding:10px;overflow-wrap:anywhere}th{color:#b7c6d8}#history{overflow-x:auto}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px} .hint{font-size:12px}.stack{display:grid;gap:8px}.pill{border-radius:6px;padding:4px 8px;background:#25364b} .alert{color:#fda8a8}@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.split{grid-template-columns:1fr}} 
-</style></head><body><main>
+<link rel="stylesheet" href="{{ url_for('static', filename='full_context_dashboard.css') }}"></head><body><main>
 <header><div><h1>FraudGuard Z <small>Full-context lab</small></h1><p>Historical and network evidence · Local simulation only · Not a real payment decision system</p></div><strong class="warn">BLOCK DISABLED</strong></header>
-<section class="grid">
+<section class="card notice" aria-label="Research limitations"><strong>Experimental policy — NOT validated for real payments.</strong><p>In previously inspected PaySim policy data, this version reviewed 97 of 412 known frauds and 0 of 206 fraudulent CASH_OUT transactions. Risk is an exploratory simulation score, not a validated real-world probability. BLOCK remains disabled.</p><p>Historical/network observations do not establish model attribution, fraud causation, or real-world funds flow.</p></section><section class="card" aria-label="Engine availability"><div id="health-indicator" class="status" role="status">Checking simulator…</div><button class="secondary" type="button" id="refresh-now">Refresh records</button></section><section class="grid">
 <div class="card"><small>Committed events</small><div class="metric" id="total">—</div></div>
 <div class="card"><small>Allowed</small><div class="metric" id="allowed">—</div></div>
 <div class="card"><small>Reviewed</small><div class="metric" id="reviewed">—</div></div>
@@ -21,21 +19,8 @@
 <label>Sender pre-balance<input required name="oldbalanceOrg" type="number" min="0" step="any" value="200"></label>
 <label>Originator<input required name="nameOrig" value="sender-demo"></label>
 <label>Destination<input required name="nameDest" value="recipient-demo"></label>
-<button type="submit">Score simulated event</button></form></div>
-<div class="card"><h2>Latest response</h2><p class="hint">Observed evidence is not feature attribution or a causal fraud explanation.</p><div id="message" role="status">No transaction submitted.</div><pre id="result"></pre><p id="latency" class="hint"></p></div>
+<button type="submit" id="submit-score">Score simulated event</button></form></div>
+<div class="card"><h2>Latest response</h2><p class="hint">Observed evidence is not feature attribution or a causal fraud explanation.</p><div id="message" role="status">No transaction submitted.</div><div class="evidence-list" id="evidence-items" aria-label="Observed context evidence"></div><details><summary>Raw stored API response</summary><pre id="result"></pre></details><p id="latency" class="hint"></p></div>
 </section>
 <section class="card"><h2>Recorded decisions</h2><p class="hint" id="metadata">Loading engine status…</p><div id="history"><table><thead><tr><th>Event</th><th>Step</th><th>Type</th><th>Amount</th><th>Risk*</th><th>Decision</th><th>Prior originators</th><th>Evidence</th></tr></thead><tbody id="rows"></tbody></table></div><p class="hint">* Exploratory simulation score, not a validated real-world fraud probability. Times below are browser-measured HTTP round trips, not model inference latency.</p></section>
-</main><script>
-const $=id=>document.getElementById(id);
-const td=(row,value)=>{const el=document.createElement('td');el.textContent=String(value);row.appendChild(el)};
-async function getJSON(url,opts){const response=await fetch(url,{cache:'no-store',...opts});const body=await response.json();if(!response.ok)throw Error(body.error||('HTTP '+response.status));return body}
-function renderEvidence(container,data){container.textContent=JSON.stringify(data,null,2)}
-async function refresh(){try{
-const [s,h,recent]=await Promise.all([getJSON('/stats'),getJSON('/health'),getJSON('/transactions/recent?limit=20')]);
-$('total').textContent=s.total;$('allowed').textContent=s.allowed;$('reviewed').textContent=s.reviewed;
-$('metadata').textContent='Model '+h.model_version+' · Policy '+h.policy_version+' · '+h.scoring_source+' · healthy='+h.healthy;
-$('rows').replaceChildren();for(const item of recent.transactions){const row=document.createElement('tr');td(row,item.event_id);td(row,item.step);td(row,item.type);td(row,item.amount);td(row,Number(item.risk).toFixed(6));td(row,item.decision);td(row,item.recipient_prior_originators);const cell=document.createElement('td');const b=document.createElement('button');b.textContent='View';b.addEventListener('click',async()=>{try{const d=await getJSON('/transactions/'+encodeURIComponent(item.event_id)+'/evidence');renderEvidence($('result'),d);$('message').textContent='Stored observation for '+item.event_id}catch(e){$('message').textContent=e.message}});cell.appendChild(b);row.appendChild(cell);$('rows').appendChild(row)}
-}catch(e){$('metadata').textContent='Unavailable: '+e.message;$('metadata').className='alert'}}
-$('form').addEventListener('submit',async e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));for(const key of ['step','source_row_index','amount','oldbalanceOrg'])data[key]=Number(data[key]);const started=performance.now();try{const r=await getJSON('/transactions/score',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});$('message').textContent=r.decision+' · '+(r.duplicate?'Duplicate':'New commit');renderEvidence($('result'),r);await refresh()}catch(error){$('message').textContent='Error: '+error.message}finally{$('latency').textContent='Browser HTTP roundtrip: '+(performance.now()-started).toFixed(1)+' ms (includes UI refresh)'}});
-refresh();
-</script></body></html>
+</main><script src="{{ url_for('static', filename='full_context_dashboard.js') }}" defer></script></body></html>
