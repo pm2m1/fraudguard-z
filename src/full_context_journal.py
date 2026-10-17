@@ -256,13 +256,36 @@ class FullContextJournal:
                     "SELECT * FROM decisions WHERE event_id=?", (event_id,)
                 ).fetchone()
                 if existing is not None:
-                    self.db.rollback()
                     if existing["payload_hash"] != fingerprint:
+                        self.db.rollback()
                         raise ValueError("Event ID already exists with different data")
-                    return self._result(
-                        event_id, existing["calibrated_risk"], existing["decision"],
-                        json.loads(existing["features_json"]), True,
-                    )
+                    try:
+                        saved = json.loads(existing["features_json"])
+                        canonical = canonical_evidence_json(saved)
+                        valid = (
+                            existing["feature_schema_sha256"] == FEATURE_SCHEMA_SHA256
+                            and existing["model_version"] == self.model_version
+                            and existing["policy_version"] == self.policy_version
+                            and existing["evidence_json"] == canonical
+                            and existing["evidence_sha256"] ==
+                            hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+                            and existing["decision"] in ("ALLOW", "REVIEW")
+                            and isfinite(existing["calibrated_risk"])
+                            and 0 <= existing["calibrated_risk"] <= 1
+                        )
+                        if not valid:
+                            raise RuntimeError("Committed duplicate integrity mismatch")
+                        result = self._result(
+                            event_id, existing["calibrated_risk"],
+                            existing["decision"], saved, True,
+                        )
+                    except (ValueError, KeyError, TypeError, OverflowError, RuntimeError) as exc:
+                        self.healthy = False
+                        raise RuntimeError(
+                            "Committed duplicate integrity mismatch; rebuild required"
+                        ) from exc
+                    self.db.rollback()
+                    return result
                 latest = self.db.execute("""
                     SELECT step, source_row_index FROM decisions
                     ORDER BY step DESC, source_row_index DESC LIMIT 1
