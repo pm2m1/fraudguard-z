@@ -1,0 +1,46 @@
+{
+  "status": "HYPOTHESIS_NOT_SUPPORTED_IN_INSPECTED_PAYSIM_DATA",
+  "experiment": "Phase 6G.2",
+  "evidence_class": "POST_HOC_TRAIN_VALIDATION",
+  "processed_rows": 4263279,
+  "link_definition": "Prior TRANSFER.nameDest == CASH_OUT.nameOrig",
+  "results": {
+    "train": {
+      "cashout_rows": 1131961,
+      "cashout_frauds": 1357,
+      "linked_6h": {
+        "rows": 4,
+        "frauds": 0,
+        "legitimate": 4,
+        "fraud_rate": 0.0
+      },
+      "linked_24h": {
+        "rows": 14,
+        "frauds": 0,
+        "legitimate": 14,
+        "fraud_rate": 0.0
+      },
+      "frauds_after_shortcut_exclusion": 26
+    },
+    "validation": {
+      "cashout_rows": 383597,
+      "cashout_frauds": 380,
+      "linked_6h": {
+        "rows": 1,
+        "frauds": 0,
+        "legitimate": 1,
+        "fraud_rate": 0.0
+      },
+      "linked_24h": {
+        "rows": 1,
+        "frauds": 0,
+        "legitimate": 1,
+        "fraud_rate": 0.0
+      },
+      "frauds_after_shortcut_exclusion": 2
+    }
+  },
+  "model_changed": false,
+  "policy_changed": false,
+  "block_enabled": false
+}
