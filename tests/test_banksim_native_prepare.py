@@ -11,14 +11,15 @@ def test_history_same_step_and_7step_expiry():
     base=dict(customer="c", merchant="m", category="'es_food'", amount=12.)
     a=h.vector(step=0, **base)
     assert len(a)==24
+    assert a.dtype == np.float32
     assert a[16]==0 and a[21]==0
     h.observe(step=0,customer="c",merchant="m",amount=12.)
     b=h.vector(step=0, **base)
-    assert b[16]==np.log1p(1)
-    assert b[21]==np.log1p(1)
-    assert b[19]==np.log1p(12)
+    assert b[16] == pytest.approx(np.log1p(1), abs=1e-7, rel=0)
+    assert b[21] == pytest.approx(np.log1p(1), abs=1e-7, rel=0)
+    assert b[19] == pytest.approx(np.log1p(12), abs=1e-7, rel=0)
     c=h.vector(step=7, **base)
-    assert c[16]==np.log1p(1)
+    assert c[16] == pytest.approx(np.log1p(1), abs=1e-7, rel=0)
     assert c[21]==0
     assert c[22]==0 and c[23]==0
 
@@ -43,8 +44,9 @@ def test_label_blind_final_features_and_overwrite(tmp_path):
     assert labels.tolist()==[0,1]
     X=np.load(dest/"features.npy",mmap_mode="r",allow_pickle=False)
     assert X.shape==(3,len(FEATURE_NAMES))
+    assert X.dtype == np.float32
     assert X[0,16]==0
-    assert X[1,16]==np.log1p(1)
+    assert X[1,16] == pytest.approx(np.log1p(1), abs=1e-7, rel=0)
     with pytest.raises(FileExistsError,match="overwrite"):
         prepare(source,dest,expected_sha256=digest,expected_rows=3)
 
