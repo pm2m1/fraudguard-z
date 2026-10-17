@@ -40,7 +40,12 @@ def explain_margin(model, full_features):
         "kind":"logistic_precalibration_margin_contributions",
         "not_probability_or_causal_attribution":True,
         "intercept":intercept,
+        # sklearn's float32-backed margin and the float64 arithmetic sum
+        # need not be bit-for-bit equal; expose both for auditable checks.
         "margin":model_margin,
+        "reconstructed_margin":margin,
+        "reconstruction_abs_error":abs(margin-model_margin),
+        "reconstruction_tolerance":tolerance,
         "items":[{"feature":FULL_FEATURE_NAMES[index],"contribution":float(value)}
                  for index,value in zip(INDICES,contribution)]
     }
