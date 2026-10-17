@@ -153,3 +153,11 @@ def test_browser_cross_origin_post_denied_without_state_change(session):
     )
     assert allowed.status_code == 201
     assert journal.status()["committed_events"] == 1
+
+
+def test_untrusted_host_rejected(session):
+    client, _, auth = session
+    result = client.get("/health", headers={**auth, "Host": "attacker.example"})
+    assert result.status_code == 400
+    good = client.get("/health", headers={**auth, "Host": "127.0.0.1:5051"})
+    assert good.status_code == 200
