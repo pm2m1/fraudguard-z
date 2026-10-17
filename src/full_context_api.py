@@ -42,6 +42,8 @@ def create_full_context_app(
     app = Flask(__name__)
     app.json.sort_keys = False
     app.config["MAX_CONTENT_LENGTH"] = 32 * 1024
+    # Local simulator only: never accept arbitrary Host authority values.
+    app.config["TRUSTED_HOSTS"] = ["localhost", "127.0.0.1"]
 
     @app.before_request
     def same_origin_write_guard():
