@@ -24,7 +24,22 @@ $('metadata').textContent='Model '+h.model_version+' · Policy '+h.policy_versio
 $('rows').replaceChildren();for(const item of recent.transactions){const row=document.createElement('tr');td(row,item.event_id);td(row,item.step);td(row,item.type);td(row,item.amount);td(row,Number(item.risk).toFixed(6));const decisionCell=document.createElement('td');
 const tag=document.createElement('span');tag.className='table-tag '+(item.decision==='REVIEW'?'review':'allow');tag.textContent=item.decision;
 decisionCell.appendChild(tag);row.appendChild(decisionCell);
-td(row,item.recipient_prior_originators);const cell=document.createElement('td');const b=document.createElement('button');b.textContent='View';b.addEventListener('click',async()=>{try{const d=await getJSON('/transactions/'+encodeURIComponent(item.event_id)+'/evidence');renderEvidence($('result'),d);$('message').textContent='Stored observation for '+item.event_id}catch(e){$('message').textContent=e.message}});cell.appendChild(b);row.appendChild(cell);$('rows').appendChild(row)}
+td(row,item.recipient_prior_originators);const cell=document.createElement('td');const b=document.createElement('button');b.textContent='View';b.addEventListener('click',async()=>{try{const d=await getJSON('/transactions/'+encodeURIComponent(item.event_id)+'/evidence');renderEvidence($('result'),d);$('message').textContent='Stored observation for '+item.event_id}catch(e){$('message').textContent=e.message}});cell.appendChild(b);
+const a=document.createElement('button');a.textContent='Model margin';a.className='secondary';
+a.addEventListener('click',async()=>{try{
+  const data=await getJSON('/transactions/'+encodeURIComponent(item.event_id)+'/attribution');
+  const panel=$('attribution-items');panel.replaceChildren();
+  const d=data.decision_margin_attribution;
+  for(const entry of d.items){
+    const el=document.createElement('div');el.className='evidence-item';
+    const name=document.createElement('strong');name.textContent=entry.feature;
+    const val=document.createElement('span');val.textContent='Margin contribution: '+Number(entry.contribution).toFixed(6);
+    el.append(name,val);panel.appendChild(el);
+  }
+  $('attribution-summary').textContent='Pre-calibration margin '+Number(d.margin).toFixed(6)+' · intercept '+Number(d.intercept).toFixed(6)+' · NOT fraud causation or probability contributions';
+  $('message').textContent='Verified logistic margin for '+item.event_id;
+}catch(error){$('attribution-items').replaceChildren();$('attribution-summary').textContent='Attribution unavailable: '+error.message}});
+cell.appendChild(a);row.appendChild(cell);$('rows').appendChild(row)}
 }catch(e){
 $('metadata').textContent='Unavailable: '+e.message;$('metadata').className='alert';
 $('health-indicator').textContent='Unavailable · no new decisions';
