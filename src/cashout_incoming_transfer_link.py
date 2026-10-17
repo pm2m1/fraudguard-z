@@ -218,6 +218,14 @@ def process_rows(reader, manifest, output):
             "No real-world predictive, financial or deployment claim; BLOCK off."
         ),
     }
+    # Expected subgroup totals from the already-archived validation shortcut audit.
+    expected_cashouts = {"train": (1131961, 1357), "validation": (383597, 380)}
+    for period, (expected_rows, expected_frauds) in expected_cashouts.items():
+        summary = result["cohorts"][period]["all"]
+        if (summary["rows"], summary["frauds"]) != (expected_rows, expected_frauds):
+            raise RuntimeError("Frozen CASH_OUT cohort counts mismatch")
+        if sum(result["cohorts"][period]["by_amount_band"][b]["rows"] for b in BANDS) != expected_rows:
+            raise RuntimeError("Amount bands failed to partition CASH_OUT")
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("x") as f:
         json.dump(result, f, indent=2)
@@ -240,10 +248,7 @@ def run(csv_path=DEFAULT_CSV, manifest_path=DEFAULT_MANIFEST, output=OUTPUT):
         reader = csv.DictReader(f)
         if not REQUIRED.issubset(reader.fieldnames or ()):
             raise ValueError("Original PaySim schema missing required columns")
-        result = process_rows(reader, manifest, output)
-    result["split_manifest_sha256"] = file_sha256(manifest_path)
-    # report written in process_rows above, hash is printed separately
-    return result
+        return process_rows(reader, manifest, output)
 
 
 def main():
