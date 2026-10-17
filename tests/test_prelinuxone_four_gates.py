@@ -40,8 +40,17 @@ def test_exact_margin_attribution_reconstructs_fitted_pipeline():
     outcome=explain_margin(pipeline,full)
     assert outcome["not_probability_or_causal_attribution"] is True
     assert len(outcome["items"]) == len(INDICES)
-    assert sum(z["contribution"] for z in outcome["items"])+outcome["intercept"] == pytest.approx(outcome["margin"],abs=1e-10)
-    assert outcome["margin"] == pytest.approx(float(pipeline.decision_function(X[7:8])[0]),abs=1e-10)
+    contribution_sum = sum(z["contribution"] for z in outcome["items"]) + outcome["intercept"]
+    # First verify the contribution decomposition to float64 arithmetic precision.
+    assert contribution_sum == pytest.approx(outcome["reconstructed_margin"], abs=1e-12)
+    # The sklearn decision margin can differ by float32/BLAS rounding.
+    assert outcome["margin"] == pytest.approx(
+        float(pipeline.decision_function(X[7:8])[0]), abs=1e-12
+    )
+    assert outcome["reconstruction_abs_error"] == pytest.approx(
+        abs(contribution_sum - outcome["margin"]), abs=1e-12
+    )
+    assert outcome["reconstruction_abs_error"] <= outcome["reconstruction_tolerance"]
 
 
 def test_attribution_rejects_invalid_shapes():
@@ -51,3 +60,19 @@ def test_attribution_rejects_invalid_shapes():
         explain_margin(object(),np.zeros(21))
     with pytest.raises(ValueError):
         explain_margin(object(),np.zeros(20))
+
+
+def test_meaningful_attribution_mismatch_still_fails(monkeypatch):
+    rng = np.random.default_rng(2027)
+    X = rng.normal(size=(30, len(INDICES))).astype(np.float32)
+    y = np.array([0, 1] * 15)
+    pipeline = make_pipeline(StandardScaler(), LogisticRegression()).fit(X, y)
+    full = np.zeros(21, dtype=np.float32)
+    full[list(INDICES)] = X[0]
+    original = pipeline.decision_function
+    monkeypatch.setattr(
+        pipeline, "decision_function",
+        lambda values: original(values) + 0.01,
+    )
+    with pytest.raises(RuntimeError, match="does not reconstruct"):
+        explain_margin(pipeline, full)
