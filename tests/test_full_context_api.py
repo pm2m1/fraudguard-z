@@ -116,3 +116,40 @@ def test_refuse_unauthenticated_factory(tmp_path):
             create_full_context_app(journal, auth_password="")
     finally:
         journal.close()
+
+
+def test_dashboard_discloses_policy_limitations_and_external_assets(session):
+    client, _, auth = session
+    page = client.get("/", headers=auth)
+    assert page.status_code == 200
+    assert b"0 of 206 fraudulent CASH_OUT" in page.data
+    assert b"NOT validated for real payments" in page.data
+    assert b"full_context_dashboard.js" in page.data
+    assert b"full_context_dashboard.css" in page.data
+    assert b"<script>" not in page.data
+    assert b"<style>" not in page.data
+    assert "script-src 'self'" in page.headers["Content-Security-Policy"]
+    assert page.headers["X-Frame-Options"] == "DENY"
+    assert page.headers["Referrer-Policy"] == "no-referrer"
+    script = client.get("/static/full_context_dashboard.js", headers=auth)
+    style = client.get("/static/full_context_dashboard.css", headers=auth)
+    assert script.status_code == style.status_code == 200
+    assert b"renderEvidence" in script.data
+    assert b".evidence-item" in style.data
+    assert client.get("/static/full_context_dashboard.js").status_code == 401
+
+
+def test_browser_cross_origin_post_denied_without_state_change(session):
+    client, journal, auth = session
+    forbidden = client.post(
+        "/transactions/score", json=item(1),
+        headers={**auth, "Origin": "https://attacker.example"}
+    )
+    assert forbidden.status_code == 403
+    assert journal.status()["committed_events"] == 0
+    allowed = client.post(
+        "/transactions/score", json=item(1),
+        headers={**auth, "Origin": "http://localhost"}
+    )
+    assert allowed.status_code == 201
+    assert journal.status()["committed_events"] == 1
