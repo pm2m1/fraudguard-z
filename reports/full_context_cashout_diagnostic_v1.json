@@ -1,0 +1,202 @@
+{
+  "status": "READ_ONLY_POST_HOC_CASHOUT_DIAGNOSIS",
+  "evidence_class": "ALREADY_INSPECTED_PAYSIM_POLICY_ONLY",
+  "source_model": "logistic_type_history_network",
+  "model_sha256": "e83d413613fc8f0adf3058f932bd910bdf5496c7e7718e97b2ac4c7baffdbdf5",
+  "calibrator_sha256": "cfaaf94597953622318a991d9fbe5dd6af15c8e9430f8d04c02ef4813c64989d",
+  "policy_report_sha256": "e5e381f06ae8f0cf11e3a5a125d30aa5989d5109665de399719a7a62e0fdfe0c",
+  "split_manifest_sha256": "daea9ab44cfe7a53fcf6846fcfdeb0719136e5026c982dcece1f70b26dff83fa",
+  "cutoff": 0.00528866346387857,
+  "cutoff_calibration_exact_ties": 2665,
+  "cutoff_is_global": true,
+  "no_type_exclusion": true,
+  "global_review_budget": 0.01,
+  "policy_rows": 526517,
+  "policy_reviews": 5264,
+  "policy_frauds": 412,
+  "policy_eligible": 8464,
+  "policy_outcomes_reproduced": true,
+  "by_type": {
+    "CASH_IN": {
+      "rows": 117068,
+      "frauds": 0,
+      "reviews": 0,
+      "true_positives": 0,
+      "false_positives": 0,
+      "precision": null,
+      "recall": null,
+      "eligible": 0,
+      "eligible_frauds": 0,
+      "eligible_not_reviewed": 0,
+      "reviewed_below_threshold": 0,
+      "exact_cutoff_ties": 0,
+      "score_distribution_all": {
+        "min": 4.949232414488e-23,
+        "p50": 1.2413201151775926e-12,
+        "p90": 7.858563292444416e-12,
+        "p99": 7.858563292444416e-12,
+        "p999": 7.858563292444416e-12,
+        "max": 8.919038605498243e-12
+      },
+      "score_distribution_fraud": null,
+      "score_distribution_nonfraud": {
+        "min": 4.949232414488e-23,
+        "p50": 1.2413201151775926e-12,
+        "p90": 7.858563292444416e-12,
+        "p99": 7.858563292444416e-12,
+        "p999": 7.858563292444416e-12,
+        "max": 8.919038605498243e-12
+      },
+      "score_max_minus_threshold": -0.005288663454959532,
+      "ap_ranking_diagnostic": null
+    },
+    "CASH_OUT": {
+      "rows": 179600,
+      "frauds": 206,
+      "reviews": 0,
+      "true_positives": 0,
+      "false_positives": 0,
+      "precision": null,
+      "recall": 0.0,
+      "eligible": 0,
+      "eligible_frauds": 0,
+      "eligible_not_reviewed": 0,
+      "reviewed_below_threshold": 0,
+      "exact_cutoff_ties": 0,
+      "score_distribution_all": {
+        "min": 1.9983889532148856e-14,
+        "p50": 0.0006120883223840668,
+        "p90": 0.0038624128367421924,
+        "p99": 0.0038624128367421924,
+        "p999": 0.0038624128367421924,
+        "max": 0.004381343251520517
+      },
+      "score_distribution_fraud": {
+        "min": 4.454056999387277e-05,
+        "p50": 0.001249061791747232,
+        "p90": 0.0038624128367421924,
+        "p99": 0.0038624128367421924,
+        "p999": 0.0038624128367421924,
+        "max": 0.0038624128367421924
+      },
+      "score_distribution_nonfraud": {
+        "min": 1.9983889532148856e-14,
+        "p50": 0.0006120883223840668,
+        "p90": 0.0038624128367421924,
+        "p99": 0.0038624128367421924,
+        "p999": 0.0038624128367421924,
+        "max": 0.004381343251520517
+      },
+      "score_max_minus_threshold": -0.0009073202123580527,
+      "ap_ranking_diagnostic": 0.0017139677182950335
+    },
+    "DEBIT": {
+      "rows": 4368,
+      "frauds": 0,
+      "reviews": 0,
+      "true_positives": 0,
+      "false_positives": 0,
+      "precision": null,
+      "recall": null,
+      "eligible": 0,
+      "eligible_frauds": 0,
+      "eligible_not_reviewed": 0,
+      "reviewed_below_threshold": 0,
+      "exact_cutoff_ties": 0,
+      "score_distribution_all": {
+        "min": 5.773250173015477e-14,
+        "p50": 1.4606711663238657e-12,
+        "p90": 4.528611834704277e-12,
+        "p99": 9.247233384556119e-12,
+        "p999": 9.247233384556119e-12,
+        "max": 1.049510304640409e-11
+      },
+      "score_distribution_fraud": null,
+      "score_distribution_nonfraud": {
+        "min": 5.773250173015477e-14,
+        "p50": 1.4606711663238657e-12,
+        "p90": 4.528611834704277e-12,
+        "p99": 9.247233384556119e-12,
+        "p999": 9.247233384556119e-12,
+        "max": 1.049510304640409e-11
+      },
+      "score_max_minus_threshold": -0.005288663453383467,
+      "ap_ranking_diagnostic": null
+    },
+    "PAYMENT": {
+      "rows": 180729,
+      "frauds": 0,
+      "reviews": 0,
+      "true_positives": 0,
+      "false_positives": 0,
+      "precision": null,
+      "recall": null,
+      "eligible": 0,
+      "eligible_frauds": 0,
+      "eligible_not_reviewed": 0,
+      "reviewed_below_threshold": 0,
+      "exact_cutoff_ties": 0,
+      "score_distribution_all": {
+        "min": 1.299170477277713e-24,
+        "p50": 1.9323990972306534e-13,
+        "p90": 1.9323990972306534e-13,
+        "p99": 1.9323990972306534e-13,
+        "p999": 2.1931637397809385e-13,
+        "max": 2.361723741048099e-13
+      },
+      "score_distribution_fraud": null,
+      "score_distribution_nonfraud": {
+        "min": 1.299170477277713e-24,
+        "p50": 1.9323990972306534e-13,
+        "p90": 1.9323990972306534e-13,
+        "p99": 1.9323990972306534e-13,
+        "p999": 2.1931637397809385e-13,
+        "max": 2.361723741048099e-13
+      },
+      "score_max_minus_threshold": -0.005288663463642398,
+      "ap_ranking_diagnostic": null
+    },
+    "TRANSFER": {
+      "rows": 44752,
+      "frauds": 206,
+      "reviews": 5264,
+      "true_positives": 97,
+      "false_positives": 5167,
+      "precision": 0.018427051671732524,
+      "recall": 0.470873786407767,
+      "eligible": 8464,
+      "eligible_frauds": 206,
+      "eligible_not_reviewed": 3200,
+      "reviewed_below_threshold": 0,
+      "exact_cutoff_ties": 3130,
+      "score_distribution_all": {
+        "min": 2.372850432257372e-13,
+        "p50": 0.0011517928852935524,
+        "p90": 0.010740042906018083,
+        "p99": 0.010740042906018083,
+        "p999": 0.010740042906018083,
+        "max": 0.012171701149736638
+      },
+      "score_distribution_fraud": {
+        "min": 0.010740042906018083,
+        "p50": 0.010740042906018083,
+        "p90": 0.010740042906018083,
+        "p99": 0.010740042906018083,
+        "p999": 0.011878211209774316,
+        "max": 0.012171701149736638
+      },
+      "score_distribution_nonfraud": {
+        "min": 2.372850432257372e-13,
+        "p50": 0.0011517928852935524,
+        "p90": 0.010740042906018083,
+        "p99": 0.010740042906018083,
+        "p999": 0.010740042906018083,
+        "max": 0.012171701149736638
+      },
+      "score_max_minus_threshold": 0.006883037685858068,
+      "ap_ranking_diagnostic": 0.03893112349006106
+    }
+  },
+  "cashout_observation": "ZERO_CASHOUT_SCORE_REACHED_GLOBAL_THRESHOLD; review-cap competition cannot alone explain zero CASH_OUT reviews",
+  "warning": "Uses already-inspected policy labels, never the untouched final holdout. Descriptive score/eligibility diagnosis; not attribution, causal proof, new validation or a proposed cutoff. Calibrated scores are not validated real-world fraud probabilities. Model/policy not changed; BLOCK disabled."
+}
