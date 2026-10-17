@@ -188,18 +188,12 @@ def test_duplicate_tampering_fails_closed_on_disposable_db(tmp_path, column, val
         j.process(event(1))
         original_count = j.status()["committed_events"]
         j.db.execute(f"UPDATE decisions SET {column}=? WHERE event_id='E1'", (value,))
-        if column == "calibrated_risk":
-            # The durable journal does not authenticate the scored risk
-            # independently; this limitation must be tested honestly.
-            assert j.process(event(1))["duplicate"] is True
-            assert j.status()["committed_events"] == original_count
-        else:
-            with pytest.raises(RuntimeError, match="integrity mismatch"):
-                j.process(event(1))
-            assert j.status()["healthy"] is False
-            assert j.db.execute("SELECT COUNT(*) FROM decisions").fetchone()[0] == original_count
-            with pytest.raises(RuntimeError, match="unavailable"):
-                j.process(event(2))
+        with pytest.raises(RuntimeError, match="integrity mismatch"):
+            j.process(event(1))
+        assert j.status()["healthy"] is False
+        assert j.db.execute("SELECT COUNT(*) FROM decisions").fetchone()[0] == original_count
+        with pytest.raises(RuntimeError, match="unavailable"):
+            j.process(event(2))
     finally:
         j.close()
 
