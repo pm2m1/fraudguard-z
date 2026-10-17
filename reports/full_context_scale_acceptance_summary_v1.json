@@ -1,0 +1,136 @@
+{
+  "status": "LOCAL_ENGINEERING_GATE_PASSED",
+  "evidence_class": "TRAIN_PREFIX_NO_FRAUD_LABELS",
+  "runs": {
+    "10000": {
+      "report_sha256": "cdca6a4c49a51f89ec81dddf3909c85ef3f1c2b5b3f778184a0cb239b400c934",
+      "model_version": "logistic_type_history_network-e83d413613fc8f0a",
+      "policy_version": "lab-v2-e5e381f06ae8f0cf",
+      "allowed": 9901,
+      "reviewed": 99,
+      "blocked": 0,
+      "latency_ms": {
+        "p50": 0.31525,
+        "p95": 0.383541,
+        "p99": 0.6822038400000027,
+        "mean": 0.3350887567,
+        "max": 19.961083
+      },
+      "checkpoints": [
+        {
+          "events": 2500,
+          "reviews": 24,
+          "sqlite_bytes": {
+            "main": 10133504,
+            "wal": 4140632,
+            "shm": 32768
+          }
+        },
+        {
+          "events": 5000,
+          "reviews": 49,
+          "sqlite_bytes": {
+            "main": 20062208,
+            "wal": 4144752,
+            "shm": 32768
+          }
+        },
+        {
+          "events": 7500,
+          "reviews": 74,
+          "sqlite_bytes": {
+            "main": 30699520,
+            "wal": 4144752,
+            "shm": 32768
+          }
+        },
+        {
+          "events": 10000,
+          "reviews": 99,
+          "sqlite_bytes": {
+            "main": 41512960,
+            "wal": 4144752,
+            "shm": 32768
+          }
+        }
+      ],
+      "restarts": [
+        {
+          "after_events": 5000,
+          "rebuild_ms": 94.722083
+        },
+        {
+          "after_events": 10000,
+          "rebuild_ms": 208.348666
+        }
+      ],
+      "wall_seconds": 5.64665079099359
+    },
+    "25000": {
+      "report_sha256": "f2f04adcd6e09fb5f4884e493826bfff6a1daadef7c24f3b91762e72acca2026",
+      "model_version": "logistic_type_history_network-e83d413613fc8f0a",
+      "policy_version": "lab-v2-e5e381f06ae8f0cf",
+      "allowed": 24751,
+      "reviewed": 249,
+      "blocked": 0,
+      "latency_ms": {
+        "p50": 0.314125,
+        "p95": 0.378625,
+        "p99": 0.5763962499999966,
+        "mean": 0.33083050804,
+        "max": 34.976833
+      },
+      "checkpoints": [
+        {
+          "events": 6250,
+          "reviews": 62,
+          "sqlite_bytes": {
+            "main": 25411584,
+            "wal": 4148872,
+            "shm": 32768
+          }
+        },
+        {
+          "events": 12500,
+          "reviews": 124,
+          "sqlite_bytes": {
+            "main": 51388416,
+            "wal": 4148872,
+            "shm": 32768
+          }
+        },
+        {
+          "events": 18750,
+          "reviews": 187,
+          "sqlite_bytes": {
+            "main": 77737984,
+            "wal": 4140632,
+            "shm": 32768
+          }
+        },
+        {
+          "events": 25000,
+          "reviews": 249,
+          "sqlite_bytes": {
+            "main": 103563264,
+            "wal": 4144752,
+            "shm": 32768
+          }
+        }
+      ],
+      "restarts": [
+        {
+          "after_events": 12500,
+          "rebuild_ms": 274.344125
+        },
+        {
+          "after_events": 25000,
+          "rebuild_ms": 518.391333
+        }
+      ],
+      "wall_seconds": 14.000550083990674
+    }
+  },
+  "production_validated": false,
+  "block_enabled": false
+}
