@@ -44,3 +44,41 @@ def test_refuses_overwrite_before_accessing_prepared_data(tmp_path):
     output.mkdir()
     with pytest.raises(FileExistsError, match="overwrite"):
         fit(tmp_path / "does_not_exist", output)
+
+
+# Local policy-diagnostic gates. Use disposable arrays and report files only.
+from src.banksim_native_policy_diagnostic import diagnostic, prefix_reviews
+import numpy as np
+
+
+def test_policy_review_prefix_capacity_under_all_high_scores():
+    decisions = prefix_reviews(np.ones(250), cutoff=0.5)
+    assert int(np.count_nonzero(decisions == "REVIEW")) == 2
+    assert decisions[0] == "ALLOW"
+    assert decisions[98] == "ALLOW"
+    assert decisions[99] == "REVIEW"
+    assert decisions[199] == "REVIEW"
+    assert set(decisions) == {"ALLOW", "REVIEW"}
+
+
+def test_policy_review_threshold_with_all_low_scores():
+    decisions = prefix_reviews(np.full(300, 0.3), cutoff=0.5)
+    assert np.all(decisions == "ALLOW")
+
+
+@pytest.mark.parametrize("bad", [
+    np.asarray([float("nan")]),
+    np.asarray([float("inf")]),
+    np.ones((2, 2)),
+])
+def test_policy_review_invalid_scores_fail_closed(bad):
+    with pytest.raises(ValueError, match="Invalid score"):
+        prefix_reviews(bad)
+
+
+def test_policy_diagnostic_refuses_report_overwrite(tmp_path):
+    report = tmp_path / "existing.json"
+    report.write_text("do not overwrite")
+    with pytest.raises(FileExistsError, match="overwrite"):
+        diagnostic(tmp_path / "not-prepared", tmp_path / "not-fit", report)
+    assert report.read_text() == "do not overwrite"
