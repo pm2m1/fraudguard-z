@@ -26,7 +26,15 @@ def explain_margin(model, full_features):
     intercept = float(classifier.intercept_[0])
     margin = float(intercept+contribution.sum())
     model_margin = float(np.asarray(model.decision_function(x[list(INDICES)].reshape(1,-1))).item())
-    if not np.isclose(margin,model_margin,rtol=1e-10,atol=1e-10):
+    # The deployed pipeline receives float32 features, and StandardScaler
+    # preserves float32 transforms. A manual contribution reduction and
+    # sklearn's BLAS-backed decision_function can differ slightly in rounding.
+    # Bound reconstruction error by a few float32 ULPs, scaled to the absolute
+    # terms to handle cancellation (rather than demanding bitwise identity).
+    scale = 1.0 + abs(intercept) + float(np.abs(contribution).sum())
+    tolerance = 8.0 * float(np.finfo(np.float32).eps) * scale
+    if (not np.isfinite(model_margin) or
+            abs(margin - model_margin) > tolerance):
         raise RuntimeError("Feature attribution does not reconstruct model margin")
     return {
         "kind":"logistic_precalibration_margin_contributions",
