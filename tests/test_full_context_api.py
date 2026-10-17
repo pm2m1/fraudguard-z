@@ -161,3 +161,63 @@ def test_untrusted_host_rejected(session):
     assert result.status_code == 400
     good = client.get("/health", headers={**auth, "Host": "127.0.0.1:5051"})
     assert good.status_code == 200
+
+
+def test_margin_attribution_unavailable_without_verified_model(session):
+    client, journal, auth = session
+    assert client.post("/transactions/score", json=item(1), headers=auth).status_code == 201
+    unavailable = client.get("/transactions/test-1/attribution", headers=auth)
+    assert unavailable.status_code == 501
+    assert client.get("/transactions/test-1/attribution").status_code == 401
+    assert journal.status()["committed_events"] == 1
+
+
+def test_verified_margin_attribution_read_only_and_fail_closed(tmp_path):
+    import numpy as np
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    from src.full_context_calibration import INDICES
+    from src.full_context_margin_attribution import explain_margin
+
+    rng = np.random.default_rng(12345)
+    features = rng.normal(size=(40, len(INDICES))).astype(np.float32)
+    labels = np.array([0, 1] * 20)
+    model = make_pipeline(StandardScaler(), LogisticRegression()).fit(features, labels)
+
+    def score(matrix):
+        return float(1 / (1 + np.exp(-model.decision_function(matrix[:, INDICES])[0])))
+
+    j = FullContextJournal(
+        tmp_path / "attribution.sqlite3", score, lambda _: "ALLOW",
+        model_version="local-synthetic-logistic-fixture",
+        policy_version="allow-fixture-v1", privacy_key=KEY,
+    )
+    app = create_full_context_app(
+        j, auth_password=PASSWORD, scoring_source="SYNTHETIC_TEST_FIXTURE",
+        attribution_provider=lambda v: explain_margin(model, v)
+    )
+    token = base64.b64encode(("fraudguard:" + PASSWORD).encode()).decode()
+    auth = {"Authorization": "Basic " + token}
+    try:
+        with app.test_client() as client:
+            assert client.post("/transactions/score", json=item(1),
+                               headers=auth).status_code == 201
+            before = j.status()["committed_events"]
+            response = client.get("/transactions/test-1/attribution", headers=auth)
+            assert response.status_code == 200
+            info = response.json
+            assert info["not_fraud_causation"] is True
+            assert info["not_probability_contributions"] is True
+            assert len(info["decision_margin_attribution"]["items"]) == len(INDICES)
+            assert j.status()["committed_events"] == before
+            assert client.get("/transactions/nonexistent/attribution",
+                              headers=auth).status_code == 404
+            j.db.execute(
+                "UPDATE decisions SET calibrated_risk=.99 WHERE event_id='test-1'"
+            )
+            assert client.get("/transactions/test-1/attribution",
+                              headers=auth).status_code == 503
+    finally:
+        j.close()
