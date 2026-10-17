@@ -8,6 +8,8 @@ import hashlib
 import json
 import sqlite3
 
+import numpy as np
+
 from flask import Flask, jsonify, render_template, request
 
 from .auth import configure_auth
@@ -32,6 +34,7 @@ def _verified_evidence(row):
 def create_full_context_app(
     journal: FullContextJournal, *, auth_password: str,
     scoring_source: str = "UNAPPROVED_EXPERIMENTAL_SIMULATION",
+    attribution_provider=None,
 ):
     if not isinstance(journal, FullContextJournal):
         raise TypeError("This API requires an isolated FullContextJournal")
@@ -39,6 +42,8 @@ def create_full_context_app(
         raise RuntimeError("Full-context API requires an auth password >=16 characters")
     if not isinstance(scoring_source, str) or not scoring_source.strip():
         raise ValueError("Scoring source must be explicitly labeled")
+    if attribution_provider is not None and not callable(attribution_provider):
+        raise TypeError("Attribution provider must be callable")
     app = Flask(__name__)
     app.json.sort_keys = False
     app.config["MAX_CONTENT_LENGTH"] = 32 * 1024
@@ -201,6 +206,53 @@ def create_full_context_app(
                 "block_enabled": False,
             }), 200
         except (sqlite3.Error, RuntimeError, KeyError, ValueError, TypeError):
+            return unavailable()
+
+    @app.get("/transactions/<path:event_id>/attribution")
+    def attribution(event_id):
+        # Unlike observational evidence, attribution needs a verified model.
+        if attribution_provider is None:
+            return jsonify({"error": "Model attribution unavailable"}), 501
+        try:
+            with journal.lock:
+                if not journal.healthy:
+                    return unavailable()
+                row = journal.db.execute("""
+                    SELECT event_id, calibrated_risk, model_version, policy_version,
+                           feature_schema_sha256, features_json,
+                           evidence_json, evidence_sha256
+                    FROM decisions WHERE event_id=?
+                """, (event_id,)).fetchone()
+                if row is None:
+                    return jsonify({"error": "Transaction not found"}), 404
+                _verified_evidence(row)
+                if (row["model_version"] != journal.model_version or
+                        row["policy_version"] != journal.policy_version):
+                    raise RuntimeError("Stored model/policy identity mismatch")
+                features = np.asarray(json.loads(row["features_json"]),
+                                      dtype=np.float32)
+                if features.shape != (21,) or not np.isfinite(features).all():
+                    raise RuntimeError("Invalid stored feature vector")
+                margin_explanation = attribution_provider(features)
+                recomputed = float(journal.score_calibrated(
+                    features.reshape(1, 21)))
+                if (not np.isfinite(recomputed) or
+                        abs(recomputed - row["calibrated_risk"]) > 1e-8):
+                    raise RuntimeError("Stored score/model mismatch")
+                return jsonify({
+                    "event_id": row["event_id"],
+                    "decision_margin_attribution": margin_explanation,
+                    "calibrated_simulation_score": row["calibrated_risk"],
+                    "model_version": row["model_version"],
+                    "policy_version": row["policy_version"],
+                    "attribution_kind": "precalibration_logistic_margin_only",
+                    "not_fraud_causation": True,
+                    "not_probability_contributions": True,
+                    "simulation_only": True,
+                    "block_enabled": False,
+                }), 200
+        except (sqlite3.Error, RuntimeError, ValueError, TypeError, KeyError,
+                OverflowError, IndexError):
             return unavailable()
 
     @app.get("/stats")
